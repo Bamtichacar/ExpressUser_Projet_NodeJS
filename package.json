@@ -1,0 +1,19 @@
+{
+  "name": "expressuser_projet_nodejs",
+  "version": "1.0.0",
+  "description": "test node js express",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bamtichacar/ExpressUser_Projet_NodeJS.git"
+  },
+  "author": "Bamtichacar",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Bamtichacar/ExpressUser_Projet_NodeJS/issues"
+  },
+  "homepage": "https://github.com/Bamtichacar/ExpressUser_Projet_NodeJS#readme"
+}
