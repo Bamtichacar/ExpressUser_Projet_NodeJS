@@ -1,11 +1,14 @@
 const express = require('express');
-const {getUser,showLogin, traiteLogin, showRegister} = require('./controllers/userController');
+const {getUser,showLogin, traiteLogin, showRegister, traiteRegister} = require('./controllers/userController');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 app.listen(3002,() => {
     console.log("coucou");
 });
+
+//app.use(express.urlencoded({ extended: true }));
 
 app.get('/user',(req, res) => {
     getUser(req, res);
@@ -18,3 +21,7 @@ app.use(bodyParser.urlencoded({extended : true})); // attention la mettre avant 
 app.post('/Login', traiteLogin);
 
 app.get('/Register', showRegister);
+
+app.use(cookieParser());
+
+app.post('/Register', traiteRegister);
