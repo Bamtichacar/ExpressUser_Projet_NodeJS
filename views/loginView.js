@@ -6,6 +6,10 @@ function loginView () {
     <input type ="password" name = "password" placeholder = "Mot de passe">
     <input type = "submit" value = "Envoyer">
     </form>
+    <br>
+    <br>
+    <p>Vous n'avez pas de compte ?</p>
+    <button onclick="window.location.href='/Register'">Créer un compte</button>
     </body>
     </html>`
 }

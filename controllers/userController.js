@@ -4,6 +4,7 @@ const loginView = require('../views/loginView');
 const registerView = require('../views/registerView');
 const db = require('../db/db'); // on importe la bdd
 const bcrypt = require('bcrypt');
+const deleteView = require('../views/deleteView');
 
 
 
@@ -37,7 +38,7 @@ function traiteLogin(req, res) {
         if (row && bcrypt.compareSync(password, row.password)) {
             res.send("Bienvenue");
         } else {
-            res.send("Error");
+            res.send("Error : Mot de passe ou nom d'utilisateur incorrect");
         }
     });
 }
@@ -158,11 +159,15 @@ function traiteRegister(req, res) {
                 return res.send("ERROR : Erreur interne du serveur.");
             }
             else if (row) {    // L'utilisateur existe déjà, 
+                console.log("Utilisateur trouvé :", row); // pour voir pb dans le code
                 if (bcrypt.compareSync(password, row.password)) {  // on vérifie le mot de passe
                     console.log("Compte déjà existant, authentification requise");
-                    return res.send("Vous avez déjà un compte, veuillez vous authentifier.");
+                    return res.send(`
+                        <p>Vous avez déjà un compte, veuillez vous authentifier.</p>
+                        <button onclick="window.location.href='/login'">Aller à la page de connexion</button>
+                    `);
+                    //return res.send("Vous avez déjà un compte, veuillez vous authentifier.");
                 } else {  // Le nom d'utilisateur existe mais le mot de passe est différent
-                    
                     console.log("Nom d'utilisateur déjà pris.");
                     return res.send("Nom d'utilisateur déjà pris, veuillez en choisir un autre.");
                 }
@@ -175,7 +180,7 @@ function traiteRegister(req, res) {
                         return res.send( 'ERROR : Erreur lors de la création du compte.');
                     } else {
                         console.log("user succes :" , newUser, " Utilisateur créé avec succès :", username);
-                        res.send("Compte créé avec succès."); // masquer si on le désire
+                        return res.send("Compte créé avec succès."); // masquer si on le désire
                     } 
                 });
             }
@@ -184,4 +189,62 @@ function traiteRegister(req, res) {
 }
 
 
-module.exports = {getUser, showLogin, traiteLogin, showRegister, traiteRegister}
+function showDelete(req, res) {
+    res.send(deleteView());
+}
+
+/* function traiteDelete(req, res) {
+    const { id, username, password } = req.body;
+    db.get('SELECT * FROM users WHERE id = ? && username = ?', [id, username], (err, row) => {
+        if (err) {
+            console.error("Erreur lors de la vérification de l'utilisateur :", err.message);
+            return res.send('ERROR');
+        }
+        if (row && bcrypt.compareSync(password, row.password)) {
+            res.send("Bienvenue");
+        } else {
+            res.send("Error");
+        }
+    });
+}
+ */
+
+/* con.connect(function(err) {
+    if (err) throw err;
+    var sql = "DELETE FROM customers WHERE address = 'Mountain 21'";
+    con.query(sql, function (err, result) {
+      if (err) throw err;
+      console.log("Number of records deleted: " + result.affectedRows);
+    });
+  });
+ */
+
+    function traiteDelete(req, res) {
+        const { id, username} = req.body;
+        db.get('SELECT * FROM users WHERE id = ? AND username = ?', [id, username], (err, row) => {
+            if (err) {
+                console.error("Erreur lors de la vérification de l'utilisateur :", err.message);
+                return res.send('ERROR');
+            }
+            if(!row){
+                return res.send('Utilisateur non trouvé');
+            }
+            const queryDelete = `DELETE FROM users WHERE id = ? AND username = ?`;
+            db.run(queryDelete, [id, username], function (err) {
+                if (err) {
+                    console.error("Erreur lors de l'enregistrement :", err.message);
+                    return res.send( 'ERROR : Erreur lors de la suppression du compte.');
+                } else {
+                    console.log(" Utilisateur supprimé avec succès :", "id :", id, "nom :", username);
+                    return res.send("Compte supprimé avec succès."); 
+                }
+            })
+        })
+    }
+     
+         
+ 
+
+
+
+module.exports = {getUser, showLogin, traiteLogin, showRegister, traiteRegister, showDelete, traiteDelete}

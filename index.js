@@ -1,7 +1,8 @@
 const express = require('express');
-const {getUser,showLogin, traiteLogin, showRegister, traiteRegister} = require('./controllers/userController');
+const {getUser,showLogin, traiteLogin, showRegister, traiteRegister, showDelete, traiteDelete} = require('./controllers/userController');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+
 
 
 const app = express();
@@ -26,3 +27,9 @@ app.get('/Register', showRegister);
 app.use(cookieParser());
 
 app.post('/Register', traiteRegister);
+
+app.get('/Delete', showDelete);
+
+
+app.post('/Delete', traiteDelete);
+
