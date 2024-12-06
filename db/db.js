@@ -11,4 +11,10 @@ const db = new sqlite3.Database('./database.sqlite', (err)=>{
     }
 })
 
-module.export = db
+module.exports = db
+
+
+
+
+
+

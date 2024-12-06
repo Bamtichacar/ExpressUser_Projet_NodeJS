@@ -2,7 +2,7 @@ const express = require('express');
 const {getUser,showLogin, traiteLogin, showRegister, traiteRegister} = require('./controllers/userController');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-//const db = require('./db/db');
+
 
 const app = express();
 app.listen(3002,() => {

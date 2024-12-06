@@ -17,9 +17,10 @@
   },
   "homepage": "https://github.com/Bamtichacar/ExpressUser_Projet_NodeJS#readme",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "body-parser": "^1.20.3",
     "cookie-parser": "^1.4.7",
-    "express": "^4.21.1",
+    "express": "^4.21.2",
     "sqlite3": "^5.1.7"
   }
 }
