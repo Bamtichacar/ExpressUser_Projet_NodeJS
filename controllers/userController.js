@@ -7,11 +7,33 @@ const bcrypt = require('bcrypt');
 const deleteView = require('../views/deleteView');
 
 
-
-function getUser(req, res) {
+// SANS BDD
+/* function getUser(req, res) {
     const user = new User(1, "Tintin");
     res.end(userView(user));
 }
+ */
+
+// AVEC BDD
+function getUser(req, res) {
+    const id = req.body.id;
+    const username = req.body.username;
+    const queryUser = 'SELECT * FROM users WHERE id = ? AND username = ?';
+    db.get(queryUser, [id, username], (err, row) => {
+        if (err) {
+            console.error("Erreur lors de la vérification de l'utilisateur :", err.message);
+            return res.send('ERROR');
+        } else if (row) {
+            res.send(userView(row));
+        } else {
+            res.send('Utilisateur non trouvé');
+        }
+    });
+}
+
+
+
+
 
 function showLogin(req, res) {
     res.send(loginView());
@@ -192,57 +214,75 @@ function showDelete(req, res) {
     res.send(deleteView());
 }
 
+//  SANS REORGANISATION DES ID PAR RAPPORT AUX ELEMENTS SUPPRIMES
 /* function traiteDelete(req, res) {
-    const { id, username, password } = req.body;
-    db.get('SELECT * FROM users WHERE id = ? && username = ?', [id, username], (err, row) => {
+    const { id, username} = req.body;
+    db.get('SELECT * FROM users WHERE id = ? AND username = ?', [id, username], (err, row) => {
         if (err) {
             console.error("Erreur lors de la vérification de l'utilisateur :", err.message);
             return res.send('ERROR');
         }
-        if (row && bcrypt.compareSync(password, row.password)) {
-            res.send("Bienvenue");
-        } else {
-            res.send("Error");
+        if(!row){
+            return res.send('Utilisateur non trouvé');
         }
+        const queryDelete = `DELETE FROM users WHERE id = ? AND username = ?`;
+        db.run(queryDelete, [id, username], function (err) {
+            if (err) {
+                console.error("Erreur lors de l'enregistrement :", err.message);
+                return res.send( 'ERROR : Erreur lors de la suppression du compte.');
+            } else {
+                console.log(" Utilisateur supprimé avec succès :", "id :", id, "nom :", username);
+                return res.send("Compte supprimé avec succès."); 
+            }
+        })
+    })
+}
+ */    
+      
+// AVEC REORGANISATION DES ID DES ELMT SUPPRIMES POUR COMBLER LES TROUS, CA PEUT ETRE FAIT AUSSI MANUELLEMENT
+function traiteDelete(req, res) {
+    const { id, username} = req.body;
+    db.get('SELECT * FROM users WHERE id = ? AND username = ?', [id, username], (err, row) => {
+        if (err) {
+            console.error("Erreur lors de la vérification de l'utilisateur :", err.message);
+            return res.send('ERROR');
+        }
+        if(!row){
+            return res.send('Utilisateur non trouvé');
+        }
+        const queryDelete = `DELETE FROM users WHERE id = ? AND username = ?`;
+        db.run(queryDelete, [id, username], function (err) {
+            if (err) {
+                console.error("Erreur lors de l'enregistrement :", err.message);
+                return res.send( 'ERROR : Erreur lors de la suppression du compte.');
+            } else {
+                console.log(" Utilisateur supprimé avec succès :", "id :", id, "nom :", username);
+                //return res.send("Compte supprimé avec succès."); 
+                // Réorganisation des ID
+                db.serialize(() => {
+                    db.run("UPDATE users SET id = id - 1 WHERE id > ?", [id], function(err) {
+                        if (err) {
+                            console.error("Erreur lors de la réorganisation des ID :", err.message);
+                            return res.send('ERROR : Erreur lors de la réorganisation des ID.');
+                        }
+                        console.log(`ID(s) mis à jour ${this.changes}`);
+                        
+                        // Réinitialiser l'auto-incrémentation
+                        db.run("UPDATE sqlite_sequence SET seq = (SELECT MAX(id) FROM users) WHERE name = 'users'", function(err) {
+                            if (err) {
+                                console.error("Erreur lors de la réinitialisation de l'auto-incrémentation :", err.message);
+                                return res.send('ERROR : Erreur lors de la réinitialisation de l\'auto-incrémentation.');
+                            }
+                            console.log("Auto-increment réinitialisé");
+                            return res.send("Compte supprimé et ID réorganisés avec succès.");
+                        });
+                    });
+                });
+            }
+        });
     });
 }
- */
 
-/* con.connect(function(err) {
-    if (err) throw err;
-    var sql = "DELETE FROM customers WHERE address = 'Mountain 21'";
-    con.query(sql, function (err, result) {
-      if (err) throw err;
-      console.log("Number of records deleted: " + result.affectedRows);
-    });
-  });
- */
-
-    function traiteDelete(req, res) {
-        const { id, username} = req.body;
-        db.get('SELECT * FROM users WHERE id = ? AND username = ?', [id, username], (err, row) => {
-            if (err) {
-                console.error("Erreur lors de la vérification de l'utilisateur :", err.message);
-                return res.send('ERROR');
-            }
-            if(!row){
-                return res.send('Utilisateur non trouvé');
-            }
-            const queryDelete = `DELETE FROM users WHERE id = ? AND username = ?`;
-            db.run(queryDelete, [id, username], function (err) {
-                if (err) {
-                    console.error("Erreur lors de l'enregistrement :", err.message);
-                    return res.send( 'ERROR : Erreur lors de la suppression du compte.');
-                } else {
-                    console.log(" Utilisateur supprimé avec succès :", "id :", id, "nom :", username);
-                    return res.send("Compte supprimé avec succès."); 
-                }
-            })
-        })
-    }
-     
-         
- 
 
 
 
