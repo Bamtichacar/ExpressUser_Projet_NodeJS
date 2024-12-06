@@ -1,6 +1,8 @@
-function loginView () {
+function loginView (errorMessage = "") {
     return `<html>
     <body>
+    <h1>Connexion</h1>
+    ${errorMessage ? `<p style="color: red;">${errorMessage}</p>` : ""}
     <form action = "/login" method = "POST">
     <input type ="text" name = "username" placeholder = "Votre Nom" requiered>
     <input type ="password" name = "password" placeholder = "Mot de passe">

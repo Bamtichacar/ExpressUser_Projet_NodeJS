@@ -38,7 +38,7 @@ function traiteLogin(req, res) {
         if (row && bcrypt.compareSync(password, row.password)) {
             res.send("Bienvenue");
         } else {
-            res.send("Error : Mot de passe ou nom d'utilisateur incorrect");
+            res.send(loginView("Error : Mot de passe ou nom d'utilisateur incorrect")); // ça laissera l'affichage du formulaire
         }
     });
 }
@@ -166,10 +166,9 @@ function traiteRegister(req, res) {
                         <p>Vous avez déjà un compte, veuillez vous authentifier.</p>
                         <button onclick="window.location.href='/login'">Aller à la page de connexion</button>
                     `);
-                    //return res.send("Vous avez déjà un compte, veuillez vous authentifier.");
                 } else {  // Le nom d'utilisateur existe mais le mot de passe est différent
                     console.log("Nom d'utilisateur déjà pris.");
-                    return res.send("Nom d'utilisateur déjà pris, veuillez en choisir un autre.");
+                    return res.send(registerView("Nom d'utilisateur déjà existant, veuillez en choisir un autre.")); // ça laissera l'affichage du formulaire
                 }
             } else {
             // Insère le nouvel utilisateur
