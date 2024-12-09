@@ -19,7 +19,7 @@ console.log('clé secrète utilisée : ', secretKey);
  */
 
 // AVEC BDD
-function getUser(req, res) {
+/* function getUser(req, res) {
     //const id = req.body.id;
     //const username = req.body.username;
     //POUR VERIF DU CODE
@@ -43,6 +43,31 @@ function getUser(req, res) {
         }
     });
 }
+ */
+
+// AVEC BDD ET TOKEN
+function getUser(req, res) {
+    const token = req.cookies.token;   // Vérification du token dans la route User
+        if(token) {
+            jwt.verify(token, secretKey, (err, decoded)=>{
+                if(err) {
+                    return res.redirect ('/login');
+                } else {
+                    res.send(`Bienvenue ${decoded.username} !`);
+                }
+            });
+        } else {
+            res.redirect('/login');
+        }
+    }
+
+
+
+
+
+
+
+
 
 
 
