@@ -275,7 +275,16 @@ function traiteRegister(req, res) {
                     } else {
                         console.log("user succes :" , newUser, " Utilisateur créé avec succès :", username);
                         //return res.send("Compte créé avec succès."); // masquer si on le désire
-                        return res.redirect('./user');  // pour rediriger l utilisateur vers la page user
+                        //return res.redirect('./user');  // pour rediriger l utilisateur vers la page user
+                        //return res.redirect('/user?message=Compte+créé+avec+succès.');
+                        return res.send(`
+                            <p>Compte créé avec succès. Redirection en cours...</p>
+                            <script>
+                                setTimeout(function() {
+                                    window.location.href = '/user';
+                                }, 3000); // Redirige après 3 secondes
+                            </script>
+                        `);
                     } 
                 });
             }
