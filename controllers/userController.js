@@ -16,8 +16,17 @@ const deleteView = require('../views/deleteView');
 
 // AVEC BDD
 function getUser(req, res) {
-    const id = req.body.id;
-    const username = req.body.username;
+    //const id = req.body.id;
+    //const username = req.body.username;
+    //POUR VERIF DU CODE
+    console.log('Requête reçue :', req.body);
+
+    const { id, username } = req.body || {};
+
+    if (!id || !username) {
+        return res.status(400).send('Requête invalide : ID ou nom d\'utilisateur manquant');
+    }
+    // FIN POUR VERIF DU CODE
     const queryUser = 'SELECT * FROM users WHERE id = ? AND username = ?';
     db.get(queryUser, [id, username], (err, row) => {
         if (err) {
