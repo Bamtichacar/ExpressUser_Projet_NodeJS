@@ -45,7 +45,7 @@ console.log('clé secrète utilisée : ', secretKey);
 }
  */
 
-// AVEC BDD ET TOKEN
+/* // AVEC BDD ET TOKEN
 function getUser(req, res) {
     const token = req.cookies.token;   // Vérification du token dans la route User
         if(token) {
@@ -60,6 +60,37 @@ function getUser(req, res) {
             res.redirect('/login');
         }
     };
+ */
+
+// AVEC BDD ET TOKEN ET RATTACHEMENT A USERVIEW
+function getUser(req, res) {
+    const token = req.cookies.token;   // Vérification du token dans la route User
+        if(token) {
+            jwt.verify(token, secretKey, (err, decoded)=>{
+                if(err) {
+                    return res.redirect ('/login');
+                } else {
+                    const queryUser = 'SELECT * FROM users WHERE username = ?';
+                    db.get(queryUser, [decoded.username], (err, row) => {
+                        if (err) {
+                            console.error("Erreur lors de la vérification de l'utilisateur :", err.message);
+                            return res.send('ERROR');
+                        } else if (row) {
+                            res.send(userView(row));
+                            //res.send(`Bienvenue ${decoded.username} !`);
+                        } else {
+                            res.send('Utilisateur non trouvé');
+                        }
+                    });
+                }
+            });
+        } else {
+            res.redirect('/login');
+        }
+    }
+
+
+
 
 
 function showLogin(req, res) {
