@@ -5,6 +5,10 @@ const registerView = require('../views/registerView');
 const db = require('../db/db'); // on importe la bdd
 const bcrypt = require('bcrypt');
 const deleteView = require('../views/deleteView');
+const dotenv =require('dotenv').config();
+const secretKey = process.env.SECRET_KEY;
+const jwt = require('jsonwebtoken');
+console.log('clé secrète utilisée : ', secretKey);
 
 
 // SANS BDD
@@ -84,6 +88,8 @@ function traiteLogin(req, res) {
             return res.send('ERROR');
         }
         if (row && bcrypt.compareSync(password, row.password)) {
+            const token = jwt.sign({username}, secretKey, {expiresIn : '1h'}); // assignation token à l'utilisateur
+            res.cookie('token', token, {httpOnly : true}); // enregistrement du token dans le cookie
             //res.send("Bienvenue");
            return res.redirect('./user');  // pour rediriger l utilisateur vers la page user
         } else {
