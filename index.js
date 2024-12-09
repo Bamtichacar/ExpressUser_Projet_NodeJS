@@ -10,6 +10,12 @@ app.listen(3002,() => {
     console.log("coucou");
 });
 
+// Utiliser cookie-parser avant les routes
+app.use(cookieParser());
+
+// Utiliser body-parser avant les routes POST
+app.use(bodyParser.urlencoded({ extended: true }));
+
 //app.use(express.urlencoded({ extended: true }));
 
 app.get('/user',(req, res) => {
@@ -20,13 +26,13 @@ app.get('/user',(req, res) => {
 
 app.get('/Login',showLogin);
 
-app.use(bodyParser.urlencoded({extended : true})); // attention la mettre avant celle d apres sinon n aura pas chargé avant de l appeler
+//app.use(bodyParser.urlencoded({extended : true})); // attention la mettre avant celle d apres sinon n aura pas chargé avant de l appeler
 
 app.post('/Login', traiteLogin);
 
 app.get('/Register', showRegister);
 
-app.use(cookieParser());
+//app.use(cookieParser());
 
 app.post('/Register', traiteRegister);
 

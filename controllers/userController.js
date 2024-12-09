@@ -59,18 +59,7 @@ function getUser(req, res) {
         } else {
             res.redirect('/login');
         }
-    }
-
-
-
-
-
-
-
-
-
-
-
+    };
 
 
 function showLogin(req, res) {
@@ -122,9 +111,6 @@ function traiteLogin(req, res) {
         }
     });
 }
-
-
-
 
 
 function showRegister(req, res) {
