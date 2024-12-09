@@ -79,7 +79,7 @@ function traiteLogin(req, res) {
 }
  */
 
-// VERSION AVEC LE HACHAGE DES MDP et la REDIRECTION VERS LA PAGE UTILISATEUR
+// VERSION AVEC LE HACHAGE DES MDP et la REDIRECTION VERS LA PAGE UTILISATEUR ET TOKEN
 function traiteLogin(req, res) {
     const { username, password } = req.body;
     db.get('SELECT * FROM users WHERE username = ?', [username], (err, row) => {
@@ -244,7 +244,7 @@ function traiteRegister(req, res) {
 }
  */
 
-// DANS CETTE VERSION ON VERIF LES DOUBLON UTILISATEUR ET ON HACHE LE MDP et REDIRECTION vers la page user apres enregistrement
+// DANS CETTE VERSION ON VERIF LES DOUBLON UTILISATEUR ET ON HACHE LE MDP et REDIRECTION vers la page user apres enregistrement ET TOKEN
 function traiteRegister(req, res) {
     const { username, password } = req.body; // Récupére les données du formulaire
     if (!username || !password) {            // Vérifie si les champs sont remplis
@@ -283,6 +283,8 @@ function traiteRegister(req, res) {
                         //return res.send("Compte créé avec succès."); // masquer si on le désire
                         //return res.redirect('./user');  // pour rediriger l utilisateur vers la page user
                         //return res.redirect('/user?message=Compte+créé+avec+succès.');
+                        const token = jwt.sign({username}, secretKey, {expiresIn : '1h'}); // assignation token à l'utilisateur
+                        res.cookie('token', token, {httpOnly : true}); // enregistrement du token dans le cookie
                         return res.send(`
                             <p>Compte créé avec succès. Redirection en cours...</p>
                             <script>
