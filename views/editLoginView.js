@@ -7,7 +7,7 @@ function editLoginView(user, errorMessage = "") {
 
     <form action = "/Edit/${user.id}" method = "POST">
     <label for="username">Name : </label>
-    <input type ="text" name = "username" value="${user.name}">
+    <input type ="text" name = "username" value="${user.username}">
     <label for="password">Mot de passe : </label>
     <input type ="password" name = "password" placeholder = "Mot de passe">
     <input type = "submit" value = "Valider">

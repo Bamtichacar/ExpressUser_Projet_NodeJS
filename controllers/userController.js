@@ -423,6 +423,7 @@ function showEditLogin(req, res) {
   
   // VERSION AVEC LE HACHAGE DES MDP et la REDIRECTION VERS LA PAGE EDITLOGIN ET TOKEN
  function traiteEditLogin(req, res) {
+    console.log('Requête reçue pour traiteEditLogin');
     const token = req.cookies.token;   // Vérification du token dans la route editlogin
         if(token) {
             console.log("token de traiteeditlogin : ",token);
