@@ -13,7 +13,8 @@ function loginView (errorMessage = "") {
     <p>Vous n'avez pas de compte ?</p>
     <button onclick="window.location.href='/Register'">Créer un compte</button>
     </body>
-    </html>`
+    </html>
+    `
 }
 
 module.exports = loginView

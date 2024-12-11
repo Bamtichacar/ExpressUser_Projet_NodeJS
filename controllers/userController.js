@@ -135,6 +135,7 @@ function traiteLogin(req, res) {
         }
         if (row && bcrypt.compareSync(password, row.password)) {
             const token = jwt.sign({username}, secretKey, {expiresIn : '1h'}); // assignation token à l'utilisateur
+            console.log("Token généré :", token); // Vérification du contenu du token ici
             res.cookie('token', token, {httpOnly : true}); // enregistrement du token dans le cookie
             //res.send("Bienvenue");
            return res.redirect('./user');  // pour rediriger l utilisateur vers la page user
@@ -417,11 +418,41 @@ function traiteDelete(req, res) {
     });
 }
 
-function showEditLogin(req, res) {
+/* function showEditLogin(req, res) {
     res.send(editLoginView());
 }
+ */
+
+// VERSION GPT
+function showEditLogin(req, res) {
+    const token = req.cookies.token;
+
+    if (token) {
+        jwt.verify(token, secretKey, (err, decoded) => {
+            if (err) {
+                console.error("Erreur lors de la vérification du token :", err.message);
+                return res.redirect('/login');
+            }
+
+            const queryUser = 'SELECT * FROM users WHERE username = ?';
+            db.get(queryUser, [decoded.username], (err, row) => {
+                if (err || !row) {
+                    console.error("Erreur lors de la récupération de l'utilisateur :", err ? err.message : "Utilisateur non trouvé");
+                    return res.send(editLoginView(null, "Utilisateur non trouvé."));
+                }
+
+                res.send(editLoginView(row));
+            });
+        });
+    } else {
+        res.redirect('/login');
+    }
+}
+
+
+
   
-  // VERSION AVEC LE HACHAGE DES MDP et la REDIRECTION VERS LA PAGE EDITLOGIN ET TOKEN
+/*   // VERSION AVEC LE HACHAGE DES MDP et la REDIRECTION VERS LA PAGE EDITLOGIN ET TOKEN
  function traiteEditLogin(req, res) {
     console.log('Requête reçue pour traiteEditLogin');
     const token = req.cookies.token;   // Vérification du token dans la route editlogin
@@ -451,10 +482,96 @@ function showEditLogin(req, res) {
             return res.redirect('/login');
         }
     }
+ */
 
+/*     function traiteEditLogin(req, res) {
+        console.log('Requête reçue pour traiteEditLogin');
+        const token = req.cookies.token;
+        if (!token) {
+            console.log("Token inexistant");
+            return res.redirect('/login');
+        }
+    
+        jwt.verify(token, secretKey, (err, decoded) => {
+            if (err) {
+                console.error("Erreur lors de la vérification du token :", err.message);
+                return res.redirect('/login');
+            }
+            console.log("Token valide et décodage :", decoded);
+    
+            const queryUser = 'SELECT * FROM users WHERE username = ?';
+            db.get(queryUser, [decoded.username], (err, row) => {
+                if (err) {
+                    console.error("Erreur lors de la requête SQL :", err.message);
+                    return res.send('ERROR : Erreur interne.');
+                }
+                if (!row) {
+                    console.log("Utilisateur non trouvé dans la base pour le username :", decoded.username);
+                    return res.send(editLoginView(null, "Utilisateur non trouvé."));
+                }
+                console.log("Utilisateur récupéré :", row);
+    
+                return res.send(editLoginView(row));
+            });
+        });
+    }
+    
+ */
 
+// VERSION GPT
+function traiteEditLogin(req, res) {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+    const token = req.cookies.token;
 
+    if (token) {
+        jwt.verify(token, secretKey, (err, decoded) => {
+            if (err) {
+                console.error("Erreur lors de la vérification du token :", err.message);
+                return res.redirect('/login');
+            }
 
+            const queryUser = 'SELECT * FROM users WHERE username = ?';
+            db.get(queryUser, [decoded.username], (err, row) => {
+                if (err || !row) {
+                    console.error("Erreur lors de la récupération de l'utilisateur :", err ? err.message : "Utilisateur non trouvé");
+                    return res.send(editLoginView(null, "Utilisateur non trouvé."));
+                }
+
+                // Vérifiez le mot de passe actuel
+                if (!bcrypt.compareSync(currentPassword, row.password)) {
+                    return res.send(editLoginView(row, "Mot de passe actuel incorrect."));
+                }
+
+                // Vérifiez que les nouveaux mots de passe correspondent
+                if (newPassword !== confirmPassword) {
+                    return res.send(editLoginView(row, "Les nouveaux mots de passe ne correspondent pas."));
+                }
+
+                // Mettez à jour le mot de passe
+                const hashedPassword = bcrypt.hashSync(newPassword, 10);
+                const updatePasswordQuery = 'UPDATE users SET password = ? WHERE username = ?';
+
+                db.run(updatePasswordQuery, [hashedPassword, decoded.username], function (err) {
+                    if (err) {
+                        console.error("Erreur lors de la mise à jour du mot de passe :", err.message);
+                        return res.send(editLoginView(row, "Erreur lors de la mise à jour du mot de passe."));
+                    }
+
+                    res.send(`
+                        <p>Mot de passe modifié avec succès. Redirection en cours...</p>
+                        <script>
+                            setTimeout(function() {
+                                window.location.href = '/User';
+                            }, 3000);
+                        </script>
+                    `);
+                });
+            });
+        });
+    } else {
+        res.redirect('/login');
+    }
+}
 
 
 
