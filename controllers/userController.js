@@ -9,6 +9,7 @@ const dotenv =require('dotenv').config();
 const secretKey = process.env.SECRET_KEY;
 const jwt = require('jsonwebtoken');
 console.log('clé secrète utilisée : ', secretKey);
+const editLoginView = require('../views/editLoginView');
 
 
 // SANS BDD
@@ -416,7 +417,46 @@ function traiteDelete(req, res) {
     });
 }
 
+function showEditLogin(req, res) {
+    res.send(editLoginView());
+}
+  
+  // VERSION AVEC LE HACHAGE DES MDP et la REDIRECTION VERS LA PAGE EDITLOGIN ET TOKEN
+ function traiteEditLogin(req, res) {
+    const token = req.cookies.token;   // Vérification du token dans la route editlogin
+        if(token) {
+            console.log("token de traiteeditlogin : ",token);
+            jwt.verify(token, secretKey, (err, decoded)=>{
+                if(err) {
+                    return res.redirect ('/login');
+                } else {
+                    const queryUser = 'SELECT * FROM users WHERE username = ?';
+                    db.get(queryUser, [decoded.username], (err, row) => {
+                        if (err) {
+                            console.error("Erreur lors de la vérification de l'utilisateur :", err.message);
+                            return res.send('ERROR');
+                        } else if (row) {
+                            console.log(row); // Ajoutez cette ligne pour vérifier la structure de l'objet `row`
+                            return res.send(editLoginView(row));
+                            //res.send(`Bienvenue ${decoded.username} !`);
+                        } else {
+                            return res.send('Utilisateur non trouvé');
+                        }
+                    });
+                }
+            });
+        } else {
+            console.log("token inexistant sur traiteeditlogin");
+            return res.redirect('/login');
+        }
+    }
 
 
 
-module.exports = {getUser, showLogin, traiteLogin, showRegister, traiteRegister, showDelete, traiteDelete}
+
+
+
+
+
+
+module.exports = {getUser, showLogin, traiteLogin, showRegister, traiteRegister, showDelete, traiteDelete, showEditLogin, traiteEditLogin}
