@@ -31,7 +31,7 @@ app.use((req, res, next) => { // Ajout d'un middleware pour vérif que les cooki
 })
  */
 // AVEC MIDDLEWARE - Route nécessitant un token pour accéder à l'utilisateur connecté
-app.get('/user', verifyTokenMiddleware, (req, res) => {
+app.get('/user', verifyTokenMiddleware("user" || "admin"), (req, res) => {
     getUser(req, res); // La fonction accède à req.user si le token est valide
 });
 
@@ -46,15 +46,15 @@ app.post('/Register', traiteRegister);
 
 
 // SANS MIDDLEWARE
-app.get('/Delete', showDelete);
+/* app.get('/Delete', showDelete);
 app.post('/Delete', traiteDelete);
-
+ */
 // AVEC MIDDLEWARE - ROUTE SECURISEE
-app.get('/Delete', verifyTokenMiddleware, (req, res) => {
+app.get('/Delete', verifyTokenMiddleware("admin"), (req, res) => {
     showDelete(req, res); // Vous aurez accès à req.user.username
 });
 
-app.post('/Delete', verifyTokenMiddleware, (req, res) => {
+app.post('/Delete', verifyTokenMiddleware("admin"), (req, res) => {
     traiteDelete(req, res); // Modification sécurisée pour l'utilisateur connecté
 });
 
@@ -72,7 +72,7 @@ app.post('/EditLogin', traiteEditLogin);
  */
 
 // AVEC MIDDLEWARE - Routes GET ET POST liées à l'édition (modis) du login (protégées)
-app.get('/EditLogin', verifyTokenMiddleware, (req, res) => {
+app.get('/EditLogin', verifyTokenMiddleware("user" || "admin"), (req, res) => {
     showEditLogin(req, res); // Vous aurez accès à req.user.username
 });
 
@@ -84,9 +84,13 @@ app.post('/EditLogin', (req, res) => {
  */
 
 // AVEC MIDDLEWARE
-app.post('/EditLogin', verifyTokenMiddleware, (req, res) => {
+app.post('/EditLogin', verifyTokenMiddleware ("user" || "admin"), (req, res) => {
     traiteEditLogin(req, res); // Modification sécurisée pour l'utilisateur connecté
 });
 
-app.get('/AdminRegister', adminShowRegister);
-app.post('/AdminRegister', adminTraiteRegister);
+app.get('/AdminRegister', verifyTokenMiddleware("admin"), (req, res) =>{
+     adminShowRegister(req, res);
+});
+app.post('/AdminRegister', verifyTokenMiddleware("admin"), (req,res) =>{
+    adminTraiteRegister(req,res);
+});

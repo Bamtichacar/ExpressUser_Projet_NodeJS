@@ -101,13 +101,13 @@ function traiteRegister(req, res) {
                         console.error("register échoué : Erreur lors de l'enregistrement :", err.message);
                         return res.send( 'ERROR : Erreur lors de la création du compte.');
                     } else {
-                        console.log("user succes :" , newUser, " Utilisateur créé avec succès :", username);
+                        console.log("user succes :" , newUser, " Utilisateur créé avec succès :", newUser.username, "role : ", newUser.role);
                         //return res.send("Compte créé avec succès."); // masquer si on le désire
                         //return res.redirect('./user');  // pour rediriger l utilisateur vers la page user
                         //return res.redirect('/user?message=Compte+créé+avec+succès.');
                         //const token = jwt.sign({username}, secretKey, {expiresIn : '1h'}); // assignation token à l'utilisateur
                         const token = jwt.sign(       // assignation token à l'utilisateur
-                            { username: row.username, role: row.role },  // Récup et ajoute username et rôle
+                            { username: newUser.username, role: newUser.role},  // Récup et ajoute username et rôle
                             secretKey,
                             { expiresIn: '1h' }
                         ); 
@@ -178,7 +178,7 @@ function adminTraiteRegister(req, res) {
                         //return res.redirect('./user');  // pour rediriger l utilisateur vers la page user
                         //return res.redirect('/user?message=Compte+créé+avec+succès.');
                         const token = jwt.sign(       // assignation token à l'utilisateur
-                            { username: row.username, role: row.role },  // Récup et ajoute username et rôle
+                            { username: newUser.username, role: newUser.role },  // Récup et ajoute username et rôle
                             secretKey,
                             { expiresIn: '1h' }
                         ); 
