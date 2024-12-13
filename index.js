@@ -1,5 +1,5 @@
 const express = require('express');
-const {getUser,showLogin, traiteLogin, showRegister, traiteRegister, showDelete, traiteDelete, showEditLogin, traiteEditLogin} = require('./controllers/userController');
+const {getUser,showLogin, traiteLogin, showRegister, traiteRegister, showDelete, traiteDelete, showEditLogin, traiteEditLogin,adminShowRegister, adminTraiteRegister} = require('./controllers/userController');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const  verifyTokenMiddleware  = require('./middlewares/verifyTokenMiddleware'); 
@@ -87,3 +87,6 @@ app.post('/EditLogin', (req, res) => {
 app.post('/EditLogin', verifyTokenMiddleware, (req, res) => {
     traiteEditLogin(req, res); // Modification sécurisée pour l'utilisateur connecté
 });
+
+app.get('/AdminRegister', adminShowRegister);
+app.post('/AdminRegister', adminTraiteRegister);
