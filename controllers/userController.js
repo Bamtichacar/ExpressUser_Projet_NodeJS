@@ -44,7 +44,12 @@ function traiteLogin(req, res) {
             return res.send('ERROR');
         }
         if (row && bcrypt.compareSync(password, row.password)) {
-            const token = jwt.sign({username}, secretKey, {expiresIn : '1h'}); // assignation token à l'utilisateur
+            //const token = jwt.sign({username}, secretKey, {expiresIn : '1h'}); // assignation token à l'utilisateur
+            const token = jwt.sign(       // assignation token à l'utilisateur
+                { username: row.username, role: row.role },  // Récup et ajoute username et rôle
+                secretKey,
+                { expiresIn: '1h' }
+            ); 
             console.log("Token généré :", token); // Vérification du contenu du token ici
             res.cookie('token', token, {httpOnly : true}); // enregistrement du token dans le cookie
             //res.send("Bienvenue");
@@ -61,7 +66,7 @@ function showRegister(req, res) {
 }
 
 
-// DANS CETTE VERSION ON VERIF LES DOUBLON UTILISATEUR ET ON HACHE LE MDP et REDIRECTION vers la page user apres enregistrement ET TOKEN
+// DANS CETTE VERSION ON VERIF LES DOUBLON UTILISATEUR ET ON HACHE LE MDP et REDIRECTION vers la page user apres enregistrement ET TOKEN qui enregistre en plus le role
 function traiteRegister(req, res) {
     const { username, password } = req.body; // Récupére les données du formulaire
     if (!username || !password) {            // Vérifie si les champs sont remplis
@@ -100,7 +105,12 @@ function traiteRegister(req, res) {
                         //return res.send("Compte créé avec succès."); // masquer si on le désire
                         //return res.redirect('./user');  // pour rediriger l utilisateur vers la page user
                         //return res.redirect('/user?message=Compte+créé+avec+succès.');
-                        const token = jwt.sign({username}, secretKey, {expiresIn : '1h'}); // assignation token à l'utilisateur
+                        //const token = jwt.sign({username}, secretKey, {expiresIn : '1h'}); // assignation token à l'utilisateur
+                        const token = jwt.sign(       // assignation token à l'utilisateur
+                            { username: row.username, role: row.role },  // Récup et ajoute username et rôle
+                            secretKey,
+                            { expiresIn: '1h' }
+                        ); 
                         res.cookie('token', token, {httpOnly : true}); // enregistrement du token dans le cookie
                         return res.send(`
                             <p>Compte créé avec succès. Redirection en cours...</p>
@@ -125,7 +135,7 @@ function adminShowRegister(req, res) {
 
 
 
-// CREATION NOUVEL ADMIN ON VERIF LES DOUBLON UTILISATEUR ET ON HACHE LE MDP et REDIRECTION vers la page user apres enregistrement ET TOKEN et MIDDLEWARE
+// CREATION NOUVEL ADMIN ON VERIF LES DOUBLON UTILISATEUR ET ON HACHE LE MDP et REDIRECTION vers la page user apres enregistrement ET TOKEN et MIDDLEWARE ET AJOUT DU ROLE DANS LE TOKEN
 function adminTraiteRegister(req, res) {
     const { username, password } = req.body; // Récupére les données du formulaire
     if (!username || !password) {            // Vérifie si les champs sont remplis
@@ -167,7 +177,11 @@ function adminTraiteRegister(req, res) {
                         //return res.send("Compte créé avec succès."); // masquer si on le désire
                         //return res.redirect('./user');  // pour rediriger l utilisateur vers la page user
                         //return res.redirect('/user?message=Compte+créé+avec+succès.');
-                        const token = jwt.sign({username}, secretKey, {expiresIn : '1h'}); // assignation token à l'utilisateur
+                        const token = jwt.sign(       // assignation token à l'utilisateur
+                            { username: row.username, role: row.role },  // Récup et ajoute username et rôle
+                            secretKey,
+                            { expiresIn: '1h' }
+                        ); 
                         res.cookie('token', token, {httpOnly : true}); // enregistrement du token dans le cookie
                         return res.send(`
                             <p>Compte ADMIN créé avec succès. Redirection en cours...</p>
