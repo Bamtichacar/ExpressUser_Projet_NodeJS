@@ -10,7 +10,7 @@ const secretKey = process.env.SECRET_KEY;
 const jwt = require('jsonwebtoken');
 console.log('clé secrète utilisée : ', secretKey);
 const editLoginView = require('../views/editLoginView');
-const { verifyTokenMiddleware } = require('./middlewares/verifyTokenMiddleware');
+//const { verifyTokenMiddleware } = require('./middlewares/verifyTokenMiddleware');
 
 
 // AVEC BDD ET TOKEN ET RATTACHEMENT A USERVIEW et avec MIDDLEWARE

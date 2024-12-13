@@ -2,7 +2,7 @@ const express = require('express');
 const {getUser,showLogin, traiteLogin, showRegister, traiteRegister, showDelete, traiteDelete, showEditLogin, traiteEditLogin} = require('./controllers/userController');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const { verifyTokenMiddleware } = require('./middlewares/verifyTokenMiddleware'); 
+const  verifyTokenMiddleware  = require('./middlewares/verifyTokenMiddleware'); 
 
 
 const app = express();
