@@ -3,7 +3,7 @@ const secretKey = process.env.SECRET_KEY; // s'assurer d'avoir une clé secrète
 
 // Middleware pour vérifier le token
 function verifyTokenMiddleware(req, res, next) {
-    const token = req.cookies.token; // Récupérer le token dans les cookies
+    const token = req.cookies.token; // Récupè le token dans les cookies
     if (!token) {
         return res.status(401).redirect('/login'); // Redirige si aucun token n'est trouvé
     }
