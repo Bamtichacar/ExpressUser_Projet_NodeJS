@@ -10,8 +10,10 @@ const secretKey = process.env.SECRET_KEY;
 const jwt = require('jsonwebtoken');
 console.log('clé secrète utilisée : ', secretKey);
 const editLoginView = require('../views/editLoginView');
-//const { verifyTokenMiddleware } = require('./middlewares/verifyTokenMiddleware');
+//const { verifyTokenMiddleware } = require('./middlewares/verifyTokenMiddleware');    faut pas ecrire ainsi
 const adminRegisterView = require('../views/adminRegisterView');
+const modifRoleView = require('../views/modifRoleView');
+
 
 
 // AVEC BDD ET TOKEN ET RATTACHEMENT A USERVIEW et avec MIDDLEWARE
@@ -401,9 +403,55 @@ function traiteEditLogin(req, res) {
     });
 }
 
+// Exemple de modification du rôle d'un utilisateur
+/* const updateUserRole = (userId, newRole) => {
+    db.run(`UPDATE users SET role = ? WHERE id = ?`, [newRole, userId], function(err) {
+        if (err) {
+            return console.error("Erreur lors de la mise à jour du rôle : ", err.message);
+        }
+        console.log(`Rôle de l'utilisateur avec l'ID ${userId} mis à jour en ${newRole}`);
+    });
+};
+
+// Appel de la fonction pour mettre à jour le rôle
+updateUserRole(1, 'admin');
+ */
+
+function showModifRole(req, res) {
+    res.send(modifRoleView());
+}
+
+//  MODIF DU ROLE
+function traiteModifRole(req, res) {
+    const { id, username, newRole} = req.body;
+/*     db.get('SELECT * FROM users WHERE id = ? AND username = ?' AND role = ?, [id, username, role], (err, row) => {
+        if (err) {
+            console.error("Erreur lors de la vérification de l'utilisateur :", err.message);
+            return res.send('ERROR');
+        }
+        if(!row){
+            return res.send('Utilisateur non trouvé');
+        }
+ */ 
+    const queryModifRole = `UPDATE users SET role = ? WHERE id = ? AND username = ?`;
+    db.run(queryModifRole, [newRole,id, username], function (err) {
+        if (err) {
+            console.error("Erreur lors de l'enregistrement :", err.message);
+            return res.send( 'ERROR : Erreur lors de la modification du role.');
+        } else {
+            console.log(" URole modifié avec succès :", "id :", id, "nom :", username, "role :", role);
+            return res.send("Role modifié avec succès."); 
+        }
+    })
+}
+
+   
+      
 
 
 
 
 
-module.exports = {getUser, showLogin, traiteLogin, showRegister, traiteRegister, showDelete, traiteDelete, showEditLogin, traiteEditLogin,adminShowRegister, adminTraiteRegister}
+
+
+module.exports = {getUser, showLogin, traiteLogin, showRegister, traiteRegister, showDelete, traiteDelete, showEditLogin, traiteEditLogin,adminShowRegister, adminTraiteRegister, showModifRole, traiteModifRole}

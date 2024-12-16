@@ -12,7 +12,7 @@ const db = new sqlite3.Database('./database.sqlite', (err)=>{
 })
  */
 
-// BDD AVEC ROLE ADMIN
+// BDD AVEC ROLE user par défaut
 const sqlite3 = require('sqlite3').verbose();
 const db = new sqlite3.Database('./database.sqlite', (err)=>{
     if(err){
@@ -26,6 +26,19 @@ const db = new sqlite3.Database('./database.sqlite', (err)=>{
             console.log("connecté à la bdd");
     }
 })
+
+// pour supp table
+/* const sqlite3 = require('sqlite3').verbose();
+const db = new sqlite3.Database('./database.sqlite', (err)=>{
+    if(err){
+        console.error("erreur de connection : " , err.message);
+    } else {
+        db.run(`DROP TABLE users)`);     // 'user' est le rôle par défaut
+            console.log("connecté à la bdd");
+    }
+})
+ */
+
 
 
 

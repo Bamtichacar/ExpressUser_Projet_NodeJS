@@ -1,8 +1,10 @@
 const express = require('express');
-const {getUser,showLogin, traiteLogin, showRegister, traiteRegister, showDelete, traiteDelete, showEditLogin, traiteEditLogin,adminShowRegister, adminTraiteRegister} = require('./controllers/userController');
+const {getUser,showLogin, traiteLogin, showRegister, traiteRegister, showDelete, traiteDelete, showEditLogin, traiteEditLogin,adminShowRegister, adminTraiteRegister, showModifRole, traiteModifRole} = require('./controllers/userController');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const  verifyTokenMiddleware  = require('./middlewares/verifyTokenMiddleware'); 
+//const  {verifyTokenMiddleware, checkRoleMiddleware} = require('./middlewares/authentifMiddleware'); 
+const verifyTokenAndRoleMiddleware = require('./middlewares/authentifMiddleware'); 
+
 
 
 const app = express();
@@ -30,10 +32,16 @@ app.use((req, res, next) => { // Ajout d'un middleware pour vérif que les cooki
     getUser(req, res);
 })
  */
-// AVEC MIDDLEWARE - Route nécessitant un token pour accéder à l'utilisateur connecté
-app.get('/user', verifyTokenMiddleware("user" || "admin"), (req, res) => {
+// AVEC MIDDLEWARE - Route nécessitant un token pour accéder à l'utilisateur connecté SANS ROLE
+/* app.get('/user', verifyTokenMiddleware(), (req, res) => {
     getUser(req, res); // La fonction accède à req.user si le token est valide
 });
+ */
+// AVEC MIDDLEWARE TOUT EN 1 - Route nécessitant un token pour accéder à l'utilisateur connecté SANS ROLE
+app.get('/user', verifyTokenAndRoleMiddleware(), (req, res) => {
+    getUser(req, res); // La fonction accède à req.user si le token est valide
+});
+
 
 // Routes publiques LOGIN ET REGISTER - -pas de middleware
 app.get('/Login',showLogin);
@@ -49,13 +57,24 @@ app.post('/Register', traiteRegister);
 /* app.get('/Delete', showDelete);
 app.post('/Delete', traiteDelete);
  */
-// AVEC MIDDLEWARE - ROUTE SECURISEE
-app.get('/Delete', verifyTokenMiddleware("admin"), (req, res) => {
-    showDelete(req, res); // Vous aurez accès à req.user.username
+
+// AVEC MIDDLEWARE - ROUTE SECURISEE - AVEC ROLE Autorise uniquement les administrateurs
+/* app.get('/Delete', checkRoleMiddleware(['admin']), (req, res) => {
+    showDelete(req, res); // on aura accès à req.user.username
 });
 
-app.post('/Delete', verifyTokenMiddleware("admin"), (req, res) => {
-    traiteDelete(req, res); // Modification sécurisée pour l'utilisateur connecté
+app.post('/Delete', checkRoleMiddleware(['admin']), (req, res) => {
+    traiteDelete(req, res); // // Modification sécurisée pour l'utilisateur connecté
+});
+ */
+
+// AVEC MIDDLEWARE TOUT EN 1 - ROUTE SECURISEE - AVEC ROLE Autorise uniquement les administrateurs
+app.get('/Delete', verifyTokenAndRoleMiddleware(['PROPRIETAIRE','admin']), (req, res) => {
+    showDelete(req, res); // on aura accès à req.user.username
+});
+
+app.post('/Delete', verifyTokenAndRoleMiddleware(['PROPRIETAIRE','admin']), (req, res) => {
+    traiteDelete(req, res); // // Modification sécurisée pour l'utilisateur connecté
 });
 
 
@@ -71,11 +90,6 @@ app.post('/EditLogin', traiteEditLogin);
 });
  */
 
-// AVEC MIDDLEWARE - Routes GET ET POST liées à l'édition (modis) du login (protégées)
-app.get('/EditLogin', verifyTokenMiddleware("user" || "admin"), (req, res) => {
-    showEditLogin(req, res); // Vous aurez accès à req.user.username
-});
-
 /* // SANS MIDDLEWARE
 app.post('/EditLogin', (req, res) => {
     console.log('Route /EditLogin (POST) - Requête reçue');
@@ -83,14 +97,54 @@ app.post('/EditLogin', (req, res) => {
 });
  */
 
-// AVEC MIDDLEWARE
-app.post('/EditLogin', verifyTokenMiddleware ("user" || "admin"), (req, res) => {
+
+// AVEC MIDDLEWARE - Routes GET ET POST liées à l'édition (modis) du login (protégées)
+/* app.get('/EditLogin', verifyTokenMiddleware(), (req, res) => {
+    showEditLogin(req, res); // Vous aurez accès à req.user.username
+});
+
+app.post('/EditLogin', verifyTokenMiddleware (), (req, res) => {
+    traiteEditLogin(req, res); // Modification sécurisée pour l'utilisateur connecté
+});
+ */
+
+// AVEC MIDDLEWARE TOUT EN 1 - Routes GET ET POST liées à l'édition (modis) du login (protégées) necessite slmt utilisateur connecté
+app.get('/EditLogin', verifyTokenAndRoleMiddleware(), (req, res) => {
+    showEditLogin(req, res); // Vous aurez accès à req.user.username
+});
+
+app.post('/EditLogin', verifyTokenAndRoleMiddleware (), (req, res) => {
     traiteEditLogin(req, res); // Modification sécurisée pour l'utilisateur connecté
 });
 
-app.get('/AdminRegister', verifyTokenMiddleware("admin"), (req, res) =>{
+
+
+
+// CREATION D UN ADMIN AVEC MIDLEWARE 1 ROLE ANCIENNE VERSION
+/* app.get('/AdminRegister', verifyTokenMiddleware("admin"), (req, res) =>{
      adminShowRegister(req, res);
 });
 app.post('/AdminRegister', verifyTokenMiddleware("admin"), (req,res) =>{
     adminTraiteRegister(req,res);
 });
+ */
+/* app.get('/AdminRegister', checkRoleMiddleware(['admin']), (req, res) => {
+    adminTraiteRegister(req, res); // on aura accès à req.user.username
+});
+
+app.post('/AdminRegister', checkRoleMiddleware(['admin']), (req, res) => {
+    adminShowRegister(req, res); // // Modification sécurisée pour l'utilisateur connecté
+});
+ */
+
+//  AVEC MIDDLEWARE TOUT EN 1 - CREATION D'UN ADMIN
+app.get('/modifRole', verifyTokenAndRoleMiddleware(), (req, res) => {
+    showModifRole(req, res); // on aura accès à req.user.username
+});
+
+app.post('/modifRole', verifyTokenAndRoleMiddleware(), (req, res) => {
+    traiteModifRole(req, res); // // Modification sécurisée pour l'utilisateur connecté
+});
+
+
+
