@@ -89,7 +89,7 @@ function verifyTokenAndRoleMiddleware(allowedRoles) {
     return function (req, res, next) {
         const token = req.cookies.token; // Récupère le token dans les cookies
         if (!token) {
-            return res.redirect('/login'); // Redirige si aucun token n'est trouvé
+            return res.redirect('/home'); // Redirige si aucun token n'est trouvé
         }
 
         jwt.verify(token, secretKey, (err, decoded) => {

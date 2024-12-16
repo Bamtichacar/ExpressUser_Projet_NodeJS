@@ -19,18 +19,10 @@ const homeView = require('../views/homeView');
 
 function getHome(req,res) {
     const navbar = res.locals.navbar || ""; // On récupère la valeur de navbar
-    const queryUser = 'SELECT * FROM users WHERE username = ?';
-    db.get(queryUser, [req.user.username], (err, row) => {
-        if (err) {
-            console.error("Erreur lors de la vérification de l'utilisateur :", err.message);
-            return res.send('ERROR');
-        } else if (row) {
-            res.send(homeView(row, navbar));
-        } else {
-            res.send(homeView(navbar));
-        }
-    });
-}
+      res.send(homeView(row,navbar));
+
+};
+
 
 
 

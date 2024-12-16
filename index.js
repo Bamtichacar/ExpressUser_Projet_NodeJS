@@ -28,6 +28,10 @@ app.use((req, res, next) => { // Ajout d'un middleware pour vérif que les cooki
 app.use(navbarMiddleware());
 
 
+/* app.get('/home', verifyTokenAndRoleMiddleware(), (req, res) => {
+    getHome(req, res); // La fonction accède à req.user si le token est valide
+});
+ */
 app.get('/home', verifyTokenAndRoleMiddleware(), (req, res) => {
     getHome(req, res); // La fonction accède à req.user si le token est valide
 });
