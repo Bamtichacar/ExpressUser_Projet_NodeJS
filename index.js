@@ -128,14 +128,14 @@ app.post('/AdminRegister', verifyTokenMiddleware("admin"), (req,res) =>{
     adminTraiteRegister(req,res);
 });
  */
-/* app.get('/AdminRegister', checkRoleMiddleware(['admin']), (req, res) => {
+app.get('/AdminRegister', checkRoleMiddleware(['PROPRIETAIRE']), (req, res) => {
     adminTraiteRegister(req, res); // on aura accès à req.user.username
 });
 
-app.post('/AdminRegister', checkRoleMiddleware(['admin']), (req, res) => {
+app.post('/AdminRegister', checkRoleMiddleware(['PROPRIETAIRE']), (req, res) => {
     adminShowRegister(req, res); // // Modification sécurisée pour l'utilisateur connecté
 });
- */
+
 
 //  AVEC MIDDLEWARE TOUT EN 1 - MODIF DES ROLES
 app.get('/modifRole', verifyTokenAndRoleMiddleware(["PROPRIETAIRE"]), (req, res) => {
@@ -147,4 +147,9 @@ app.post('/modifRole', verifyTokenAndRoleMiddleware(["PROPRIETAIRE"]), (req, res
 });
 
 
+// GESTION DE LA DECONNECTION LOGOUT : SUPPRESSION DU COOKIE CONTENANT LE TOKEN
+app.get('/logout', verifyTokenAndRoleMiddleware(),(req, res) => {
+    res.clearCookie('token'); // Supprime le cookie contenant le token
+    res.redirect('/login'); // Redirige vers la page de connexion
+});
 

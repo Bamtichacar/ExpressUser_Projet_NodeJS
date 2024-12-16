@@ -13,7 +13,7 @@ const editLoginView = require('../views/editLoginView');
 //const { verifyTokenMiddleware } = require('./middlewares/verifyTokenMiddleware');    faut pas ecrire ainsi
 const adminRegisterView = require('../views/adminRegisterView');
 const modifRoleView = require('../views/modifRoleView');
-
+const logoutView = require('../views/logoutView');
 
 
 // AVEC BDD ET TOKEN ET RATTACHEMENT A USERVIEW et avec MIDDLEWARE
