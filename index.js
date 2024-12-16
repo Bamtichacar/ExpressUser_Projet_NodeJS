@@ -137,12 +137,12 @@ app.post('/AdminRegister', checkRoleMiddleware(['admin']), (req, res) => {
 });
  */
 
-//  AVEC MIDDLEWARE TOUT EN 1 - CREATION D'UN ADMIN
-app.get('/modifRole', verifyTokenAndRoleMiddleware(), (req, res) => {
+//  AVEC MIDDLEWARE TOUT EN 1 - MODIF DES ROLES
+app.get('/modifRole', verifyTokenAndRoleMiddleware(["PROPRIETAIRE"]), (req, res) => {
     showModifRole(req, res); // on aura accès à req.user.username
 });
 
-app.post('/modifRole', verifyTokenAndRoleMiddleware(), (req, res) => {
+app.post('/modifRole', verifyTokenAndRoleMiddleware(["PROPRIETAIRE"]), (req, res) => {
     traiteModifRole(req, res); // // Modification sécurisée pour l'utilisateur connecté
 });
 

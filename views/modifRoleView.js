@@ -16,7 +16,12 @@ function modifRoleView () {
     </html>`
 }
 
+
+
 module.exports = modifRoleView
 //<input type ="password" name = "password" placeholder = "Mot de passe" required>
 //<input type ="text" name = "role" placeholder = "Nouveau Role" requiered>
+
+//<option value="PROPRIETAIRE">PROPRIETAIRE</option>
+
 

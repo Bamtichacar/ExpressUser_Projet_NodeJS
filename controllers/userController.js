@@ -423,7 +423,7 @@ function showModifRole(req, res) {
 
 //  MODIF DU ROLE
 function traiteModifRole(req, res) {
-    const { id, username, newRole} = req.body;
+    const { id, username, role} = req.body;
 /*     db.get('SELECT * FROM users WHERE id = ? AND username = ?' AND role = ?, [id, username, role], (err, row) => {
         if (err) {
             console.error("Erreur lors de la vérification de l'utilisateur :", err.message);
@@ -434,7 +434,7 @@ function traiteModifRole(req, res) {
         }
  */ 
     const queryModifRole = `UPDATE users SET role = ? WHERE id = ? AND username = ?`;
-    db.run(queryModifRole, [newRole,id, username], function (err) {
+    db.run(queryModifRole, [role,id, username], function (err) {
         if (err) {
             console.error("Erreur lors de l'enregistrement :", err.message);
             return res.send( 'ERROR : Erreur lors de la modification du role.');
