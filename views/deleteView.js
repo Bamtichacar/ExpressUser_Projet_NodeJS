@@ -1,6 +1,7 @@
-function deleteView () {
+function deleteView (navbar="") {
     return `<html>
     <body>
+    ${navbar}
     <form action = "/delete" method = "POST">
     <input type = "number" name = "id" placeholder = "ID de l'utilisateur à supprimer" required>
     <input type ="text" name = "username" placeholder = "Votre Nom" requiered>

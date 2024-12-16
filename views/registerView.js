@@ -1,6 +1,7 @@
-function registerView (errorMessage = "") {
+function registerView (navbar="",errorMessage = "") {
     return `<html>
     <body>
+    ${navbar}
     <h1>Formulaire d'inscription</h1>
     ${errorMessage ? `<p style="color: red;">${errorMessage}</p>` : ""}
     <form action = "/register" method = "POST">

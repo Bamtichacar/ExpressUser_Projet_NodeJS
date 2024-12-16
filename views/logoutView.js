@@ -1,6 +1,7 @@
 function logoutView (errorMessage = "") {
     return `<html>
     <body>
+    ${res.locals.navbar}
 
     <form action="/logout" method="get">
         <button type="submit">Logout</button>

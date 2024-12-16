@@ -1,6 +1,7 @@
-function adminRegisterView (errorMessage = "") {
+function adminRegisterView (navbar="",errorMessage = "") {
     return `<html>
     <body>
+    ${navbar}
     <h1> ADMIN Formulaire d'inscription</h1>
     ${errorMessage ? `<p style="color: red;">${errorMessage}</p>` : ""}
     <form action = "/AdminRegister" method = "POST">

@@ -14,17 +14,37 @@ const editLoginView = require('../views/editLoginView');
 const adminRegisterView = require('../views/adminRegisterView');
 const modifRoleView = require('../views/modifRoleView');
 const logoutView = require('../views/logoutView');
+const homeView = require('../views/homeView');
 
 
-// AVEC BDD ET TOKEN ET RATTACHEMENT A USERVIEW et avec MIDDLEWARE
-function getUser(req, res) {
+function getHome(req,res) {
+    const navbar = res.locals.navbar || ""; // On récupère la valeur de navbar
     const queryUser = 'SELECT * FROM users WHERE username = ?';
     db.get(queryUser, [req.user.username], (err, row) => {
         if (err) {
             console.error("Erreur lors de la vérification de l'utilisateur :", err.message);
             return res.send('ERROR');
         } else if (row) {
-            res.send(userView(row));
+            res.send(homeView(row, navbar));
+        } else {
+            res.send(homeView(navbar));
+        }
+    });
+}
+
+
+
+
+// AVEC BDD ET TOKEN ET RATTACHEMENT A USERVIEW et avec MIDDLEWARE
+function getUser(req, res) {
+    const navbar = res.locals.navbar || ""; // On récupère la valeur de navbar
+    const queryUser = 'SELECT * FROM users WHERE username = ?';
+    db.get(queryUser, [req.user.username], (err, row) => {
+        if (err) {
+            console.error("Erreur lors de la vérification de l'utilisateur :", err.message);
+            return res.send('ERROR');
+        } else if (row) {
+            res.send(userView(row, navbar));
         } else {
             res.send('Utilisateur non trouvé');
         }
@@ -32,10 +52,17 @@ function getUser(req, res) {
 }
 
 
-
-function showLogin(req, res) {
+// FONCTION SHOWLOGIN INITIALE
+/* function showLogin(req, res) {
     res.send(loginView());
 }
+ */
+// METHODE 1 POUR POUVOIR RATTACHER LE MIDDLEWARENAVBAR A LA VUE CAR LES VUES NE LE PRENNENT PAS EN COMPTE
+function showLogin(req, res) {
+    const navbar = res.locals.navbar || ""; // On récupère la valeur de navbar
+    res.send(loginView(navbar));  // On passe navbar à la vue
+}
+
 
 // VERSION AVEC LE HACHAGE DES MDP et la REDIRECTION VERS LA PAGE UTILISATEUR ET TOKEN
 function traiteLogin(req, res) {
@@ -64,7 +91,8 @@ function traiteLogin(req, res) {
 
 
 function showRegister(req, res) {
-    res.send(registerView())
+    const navbar = res.locals.navbar || ""; // On récupère la valeur de navbar
+    res.send(registerView(navbar));  // On passe navbar à la vue
 }
 
 
@@ -132,7 +160,8 @@ function traiteRegister(req, res) {
 
 
 function adminShowRegister(req, res) {
-    res.send(adminRegisterView())
+    const navbar = res.locals.navbar || ""; // On récupère la valeur de navbar
+    res.send(adminRegisterView(navbar));  // On passe navbar à la vue
 }
 
 
@@ -202,7 +231,8 @@ function adminTraiteRegister(req, res) {
 
 
 function showDelete(req, res) {
-    res.send(deleteView());
+    const navbar = res.locals.navbar || ""; // On récupère la valeur de navbar
+    res.send(deleteView(navbar));  // On passe navbar à la vue
 }
 
 //  SANS REORGANISATION DES ID PAR RAPPORT AUX ELEMENTS SUPPRIMES
@@ -281,13 +311,14 @@ function traiteDelete(req, res) {
 
 // VERSION GPT
 function showEditLogin(req, res) {
+    const navbar = res.locals.navbar || ""; // On récupère la valeur de navbar
     const queryUser = 'SELECT * FROM users WHERE username = ?';
     db.get(queryUser, [req.user.username], (err, row) => {
         if (err || !row) {
             console.error("Erreur lors de la récupération de l'utilisateur :", err ? err.message : "Utilisateur non trouvé");
             return res.send(editLoginView(null, "Utilisateur non trouvé."));
         } else {
-        res.send(editLoginView(row));
+        res.send(editLoginView(row, navbar));
         }
     });
 }
@@ -418,7 +449,8 @@ updateUserRole(1, 'admin');
  */
 
 function showModifRole(req, res) {
-    res.send(modifRoleView());
+    const navbar = res.locals.navbar || ""; // On récupère la valeur de navbar
+    res.send(modifRoleView(navbar));  // On passe navbar à la vue
 }
 
 //  MODIF DU ROLE
@@ -439,7 +471,7 @@ function traiteModifRole(req, res) {
             console.error("Erreur lors de l'enregistrement :", err.message);
             return res.send( 'ERROR : Erreur lors de la modification du role.');
         } else {
-            console.log(" URole modifié avec succès :", "id :", id, "nom :", username, "role :", role);
+            console.log(" Role modifié avec succès :", "id :", id, "nom :", username, "role :", role);
             return res.send("Role modifié avec succès."); 
         }
     })
@@ -454,4 +486,4 @@ function traiteModifRole(req, res) {
 
 
 
-module.exports = {getUser, showLogin, traiteLogin, showRegister, traiteRegister, showDelete, traiteDelete, showEditLogin, traiteEditLogin,adminShowRegister, adminTraiteRegister, showModifRole, traiteModifRole}
+module.exports = {getUser, showLogin, traiteLogin, showRegister, traiteRegister, showDelete, traiteDelete, showEditLogin, traiteEditLogin,adminShowRegister, adminTraiteRegister, showModifRole, traiteModifRole, getHome}

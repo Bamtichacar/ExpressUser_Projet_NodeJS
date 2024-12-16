@@ -1,6 +1,7 @@
-function modifRoleView () {
+function modifRoleView (navbar="") {
     return `<html>
     <body>
+    ${navbar}
     <form action = "/modifRole" method = "POST">
     <input type = "number" name = "id" placeholder = "ID de l'utilisateur dont le role est à odifier" required> <br>
     <input type ="text" name = "username" placeholder = "Nom de l'utilisateur dont le role est à modifier" requiered> <br>

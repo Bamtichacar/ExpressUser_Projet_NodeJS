@@ -1,10 +1,10 @@
 const express = require('express');
-const {getUser,showLogin, traiteLogin, showRegister, traiteRegister, showDelete, traiteDelete, showEditLogin, traiteEditLogin,adminShowRegister, adminTraiteRegister, showModifRole, traiteModifRole} = require('./controllers/userController');
+const {getUser,showLogin, traiteLogin, showRegister, traiteRegister, showDelete, traiteDelete, showEditLogin, traiteEditLogin,adminShowRegister, adminTraiteRegister, showModifRole, traiteModifRole, getHome} = require('./controllers/userController');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 //const  {verifyTokenMiddleware, checkRoleMiddleware} = require('./middlewares/authentifMiddleware'); 
 const verifyTokenAndRoleMiddleware = require('./middlewares/authentifMiddleware'); 
-
+const navbarMiddleware = require('./middlewares/navbarMiddleware'); 
 
 
 const app = express();
@@ -23,6 +23,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use((req, res, next) => { // Ajout d'un middleware pour vérif que les cookies st bien reçus par le serveur.
     console.log('Cookies:', req.cookies);
     next();
+});
+
+app.use(navbarMiddleware());
+
+
+app.get('/home', verifyTokenAndRoleMiddleware(), (req, res) => {
+    getHome(req, res); // La fonction accède à req.user si le token est valide
 });
 
 
@@ -128,11 +135,11 @@ app.post('/AdminRegister', verifyTokenMiddleware("admin"), (req,res) =>{
     adminTraiteRegister(req,res);
 });
  */
-app.get('/AdminRegister', checkRoleMiddleware(['PROPRIETAIRE']), (req, res) => {
+app.get('/AdminRegister', verifyTokenAndRoleMiddleware(['PROPRIETAIRE']), (req, res) => {
     adminTraiteRegister(req, res); // on aura accès à req.user.username
 });
 
-app.post('/AdminRegister', checkRoleMiddleware(['PROPRIETAIRE']), (req, res) => {
+app.post('/AdminRegister', verifyTokenAndRoleMiddleware(['PROPRIETAIRE']), (req, res) => {
     adminShowRegister(req, res); // // Modification sécurisée pour l'utilisateur connecté
 });
 

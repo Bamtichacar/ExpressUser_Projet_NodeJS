@@ -77,10 +77,11 @@
 
 
 // VERSION GPT 
-function editLoginView(user, errorMessage = "") {
+function editLoginView(user, navbar="",errorMessage = "") {
     return `
     <html>
     <body>
+        ${navbar}
         <h1>Bienvenue ${user.username} !</h1>
         ${errorMessage ? `<p style="color: red;">${errorMessage}</p>` : ""}
         <h3>Modifier mon mot de passe</h3>
