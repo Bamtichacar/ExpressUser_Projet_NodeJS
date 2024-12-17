@@ -151,11 +151,11 @@ app.post('/AdminRegister', verifyTokenMiddleware("admin"), (req,res) =>{
 });
  */
 app.get('/AdminRegister', verifyTokenAndRoleMiddleware(['PROPRIETAIRE']), (req, res) => {
-    adminTraiteRegister(req, res); // on aura accès à req.user.username
+    adminShowRegister(req, res); // on aura accès à req.user.username
 });
 
 app.post('/AdminRegister', verifyTokenAndRoleMiddleware(['PROPRIETAIRE']), (req, res) => {
-    adminShowRegister(req, res); // // Modification sécurisée pour l'utilisateur connecté
+    adminTraiteRegister(req, res); // // Modification sécurisée pour l'utilisateur connecté
 });
 
 
