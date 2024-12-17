@@ -1,0 +1,24 @@
+<%- include('header') %>
+
+<title>ADMIN Inscription</title>
+
+<%- include('balisesfermetureheadetouverturebody') %>
+<%- include('navbar') %>
+
+<h1>ADMIN Formulaire d'inscription</h1>
+
+<%- include('errorOuValidateMessage') %>
+
+
+<form action = "/AdminRegister" method = "POST">
+    <input type ="text" name = "username" placeholder = "Votre Nom" requiered>
+    <input type ="password" name = "password" placeholder = "Mot de passe" required>
+    <button type="submit">S'inscrire</button>
+    </form>
+        <br>
+    <br>
+    <p>Vous avez déjà un compte ?</p>
+    <button onclick="window.location.href='/Login'">Se connecter</button>
+
+
+<%- include('footer') %>

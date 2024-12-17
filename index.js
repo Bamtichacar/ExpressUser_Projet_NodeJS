@@ -19,14 +19,19 @@ app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 //app.use(express.urlencoded({ extended: true }));
-
-app.use(navbarMiddleware());
+app.use(verifyTokenAndRoleMiddleware()); // Définit req.user
+app.use(navbarMiddleware()); // Génère la navbar en fonction de req.user
 
 
 app.use((req, res, next) => { // Ajout d'un middleware pour vérif que les cookies st bien reçus par le serveur.
     console.log('Cookies:', req.cookies);
     next();
 });
+
+// Configuration du moteur de template
+app.set('view engine', 'ejs');  // Définit EJS comme moteur de vue
+app.set('views', './views'); // Indique où se trouvent les fichiers de vue
+
 
 //app.use(navbarMiddleware());
 
@@ -35,10 +40,13 @@ app.use((req, res, next) => { // Ajout d'un middleware pour vérif que les cooki
     getHome(req, res); // La fonction accède à req.user si le token est valide
 });
  */
-app.get('/home', (req, res) => {
+/* app.get('/home', (req, res) => {
     getHome(req, res); 
 });
-
+ */
+app.get('/home', verifyTokenAndRoleMiddleware(), (req,res) => {
+    getHome(req, res);
+});
 
 
 // SANS MIDDLEWARE

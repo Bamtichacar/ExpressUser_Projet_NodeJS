@@ -3,6 +3,7 @@ function navbarMiddleware() {
     return function (req, res, next) {
     const token = req.cookies.token; // Vérifie si un utilisateur est connecté
     const userRole = req.cookies.role || 'guest'; // Récupère le rôle depuis les cookies ou "guest" par défaut
+    console.log("role dans navbar :", userRole, "token :", token);
 
     // Crée la navbar dynamique
     res.locals.navbar = `
@@ -33,7 +34,8 @@ function navbarMiddleware() {
         `;
     }
     res.locals.navbar += `</nav>`;
-    console.log(res.locals.navbar); // Vérification de la navbar générée
+    //console.log(res.locals.navbar); // Vérification de la navbar générée
+    console.log("Rôle de l'utilisateur dans navbarMiddleware :", req.user?.role);
     next(); // Continue vers la prochaine middleware ou route
 }}
 

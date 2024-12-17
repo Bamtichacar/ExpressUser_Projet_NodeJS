@@ -1,0 +1,10 @@
+<!-- <% if (errorMessage) { %>
+    <p style="color: red;"><%= errorMessage %></p>
+<% } %>
+ -->
+
+<% if (errorMessage) { %>
+    <p style="color: red;"><%= errorMessage %></p>
+<% } else if(validateMessage) { %>
+    <p style="color: rgb(47, 255, 168);"><%= validateMessage %></p>
+    <% } %>

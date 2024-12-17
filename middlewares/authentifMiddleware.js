@@ -89,7 +89,9 @@ function verifyTokenAndRoleMiddleware(allowedRoles) {
     return function (req, res, next) {
         const token = req.cookies.token; // Récupère le token dans les cookies
         if (!token) {
-            return res.redirect('/home'); // Redirige si aucun token n'est trouvé
+            req.user = null; // L'utilisateur n'est pas authentifié
+            return next();
+            //return res.redirect('/home'); // Redirige si aucun token n'est trouvé
         }
 
         jwt.verify(token, secretKey, (err, decoded) => {
@@ -98,7 +100,8 @@ function verifyTokenAndRoleMiddleware(allowedRoles) {
             }
 
             req.user = decoded; // Ajoute les données décodées à la requête
-
+            //req.user = { username: decoded.username, role: decoded.role }; // Ajoutez le rôle ici
+        
             // Vérifie si un rôle est requis
             if (allowedRoles && !allowedRoles.includes(decoded.role)) {
                 return res.status(403).send("Accès refusé : Vous n'avez pas les droits nécessaires.");

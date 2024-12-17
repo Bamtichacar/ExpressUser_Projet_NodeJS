@@ -1,6 +1,6 @@
 const User = require('../models/User');
 const userView = require('../views/userView');
-const loginView = require('../views/loginView');
+//const loginView = require('../views/loginView');  // pas via ejs
 const registerView = require('../views/registerView');
 const db = require('../db/db'); // on importe la bdd
 const bcrypt = require('bcrypt');
@@ -16,17 +16,56 @@ const modifRoleView = require('../views/modifRoleView');
 const logoutView = require('../views/logoutView');
 const homeView = require('../views/homeView');
 
-function getHome(req,res) {
+
+/* res.render('modifRoleEJSView', { 
+    user: row || 'invité',
+    navbar: res.locals.navbar || "", // On récupère la valeur de navbar
+    errorMessage: "" ,
+    validateMessage: ""
+});
+ */
+
+// SANS EJS
+/* function getHome(req,res) {
     const navbar = res.locals.navbar || ""; // On récupère la valeur de navbar
     res.send(homeView(navbar));
-
 };
- 
+ */ 
+
+//AVEC EJS
+function getHome(req, res) {
+    console.log("Valeur de req.user :", req.user);
+    const queryUser = 'SELECT * FROM users WHERE username = ?';
+    if (!req.user || !req.user.username) {
+        return res.render('homeEJSView', { 
+            user: { username: 'invité' },
+            navbar: res.locals.navbar || "",
+            errorMessage: "Utilisateur non authentifié.",
+            validateMessage: ""
+        });
+    }
+    db.get(queryUser, [req.user.username], (err, row) => {
+        if (err) {
+            console.error("Erreur lors de la vérification de l'utilisateur :", err.message);
+            return res.send('ERROR');
+        } else if (row) {
+            res.render('homeEJSView', { 
+                user: row,
+                navbar: res.locals.navbar || "", // On récupère la valeur de navbar
+                errorMessage: "" ,
+                validateMessage: ""
+            });            
+        } else {
+            res.send('Utilisateur non trouvé'); 
+        }
+    });
+}
 
 
 
-// AVEC BDD ET TOKEN ET RATTACHEMENT A USERVIEW et avec MIDDLEWARE
-function getUser(req, res) {
+
+// SANS EJS AVEC BDD ET TOKEN ET RATTACHEMENT A USERVIEW et avec MIDDLEWARE
+/* function getUser(req, res) {
     const navbar = res.locals.navbar || ""; // On récupère la valeur de navbar
     const queryUser = 'SELECT * FROM users WHERE username = ?';
     db.get(queryUser, [req.user.username], (err, row) => {
@@ -40,6 +79,30 @@ function getUser(req, res) {
         }
     });
 }
+ */
+
+// AVEC EJS AVEC BDD ET TOKEN ET RATTACHEMENT A USERVIEW et avec MIDDLEWARE
+function getUser(req, res) {
+    const navbar = res.locals.navbar || ""; // On récupère la valeur de navbar
+    const queryUser = 'SELECT * FROM users WHERE username = ?';
+    db.get(queryUser, [req.user.username], (err, row) => {
+        if (err) {
+            console.error("Erreur lors de la vérification de l'utilisateur :", err.message);
+            return res.send('ERROR');
+        } else if (row) {
+            //res.send(userView(row, navbar)); // PAS EJS
+            res.render('userEJSView', { 
+                user: row,
+                navbar: res.locals.navbar || "", // On récupère la valeur de navbar
+                errorMessage: "" ,
+                validateMessage: ""
+            });            
+
+        } else {
+            res.send('Utilisateur non trouvé');
+        }
+    });
+}
 
 
 // FONCTION SHOWLOGIN INITIALE
@@ -48,13 +111,22 @@ function getUser(req, res) {
 }
  */
 // METHODE 1 POUR POUVOIR RATTACHER LE MIDDLEWARENAVBAR A LA VUE CAR LES VUES NE LE PRENNENT PAS EN COMPTE
-function showLogin(req, res) {
+/* function showLogin(req, res) {
     const navbar = res.locals.navbar || ""; // On récupère la valeur de navbar
     res.send(loginView(navbar));  // On passe navbar à la vue
 }
+ */
 
+// METHODE 2 AVEC EJS sup de res.send et à la place res.render
+function showLogin(req, res) {
+    res.render('loginEJSView', { 
+        navbar: res.locals.navbar || "", // On récupère la valeur de navbar
+        errorMessage: "" ,
+        validateMessage: ""
+    });
+}
 
-// VERSION AVEC LE HACHAGE DES MDP et la REDIRECTION VERS LA PAGE UTILISATEUR ET TOKEN
+/* // VERSION AVEC LE HACHAGE DES MDP et la REDIRECTION VERS LA PAGE UTILISATEUR ET TOKEN
 function traiteLogin(req, res) {
     const { username, password } = req.body;
     db.get('SELECT * FROM users WHERE username = ?', [username], (err, row) => {
@@ -78,15 +150,58 @@ function traiteLogin(req, res) {
         }
     });
 }
+ */
 
+// VERSION VIA EJS AVEC LE HACHAGE DES MDP et la REDIRECTION VERS LA PAGE UTILISATEUR ET TOKEN
+function traiteLogin(req, res) {
+    const { username, password } = req.body;
+    db.get('SELECT * FROM users WHERE username = ?', [username], (err, row) => {
+        if (err) {
+            console.error("Erreur lors de la vérification de l'utilisateur :", err.message);
+            return res.send('ERROR');
+        }
+        if (row && bcrypt.compareSync(password, row.password)) {
+            //const token = jwt.sign({username}, secretKey, {expiresIn : '1h'}); // assignation token à l'utilisateur
+            const token = jwt.sign(       // assignation token à l'utilisateur
+                { username: row.username, role: row.role },  // Récup et ajoute username et rôle
+                secretKey,
+                { expiresIn: '1h' }
+            ); 
+            console.log("Token généré :", token); // Vérification du contenu du token ici
+            res.cookie('token', token, {httpOnly : true}); // enregistrement du token dans le cookie
+            //res.send("Bienvenue");
+           return res.redirect('./user');  // pour rediriger l utilisateur vers la page user
+        } else {
+            //return res.send(loginView("Error : Mot de passe ou nom d'utilisateur incorrect")); // ça laissera l'affichage du formulaire - PAS AVEC EJS
+            return res.render('loginEJSView', { 
+                navbar: res.locals.navbar || "", 
+                errorMessage: "Erreur : nom d'utilisateur ou mot de passe incorrect.",
+                validateMessage: "" 
+            });          
 
-function showRegister(req, res) {
-    const navbar = res.locals.navbar || ""; // On récupère la valeur de navbar
-    res.send(registerView(navbar));  // On passe navbar à la vue
+        }
+    });
 }
 
 
-// DANS CETTE VERSION ON VERIF LES DOUBLON UTILISATEUR ET ON HACHE LE MDP et REDIRECTION vers la page user apres enregistrement ET TOKEN qui enregistre en plus le role
+/* function showRegister(req, res) {
+    const navbar = res.locals.navbar || ""; // On récupère la valeur de navbar
+    res.send(registerView(navbar));  // On passe navbar à la vue
+}
+ */
+// METHODE 2 AVEC EJS sup de res.send et à la place res.render
+function showRegister(req, res) {
+    res.render('registerEJSView', { 
+        navbar: res.locals.navbar || "", // On récupère la valeur de navbar
+        errorMessage: "" ,
+        validateMessage: ""
+    });
+}
+
+
+
+
+/* // DANS CETTE VERSION ON VERIF LES DOUBLON UTILISATEUR ET ON HACHE LE MDP et REDIRECTION vers la page user apres enregistrement ET TOKEN qui enregistre en plus le role
 function traiteRegister(req, res) {
     const { username, password } = req.body; // Récupére les données du formulaire
     if (!username || !password) {            // Vérifie si les champs sont remplis
@@ -146,12 +261,88 @@ function traiteRegister(req, res) {
         });
     }
 }
+ */
 
+// AVEC EJS DANS CETTE VERSION ON VERIF LES DOUBLON UTILISATEUR ET ON HACHE LE MDP et REDIRECTION vers la page user apres enregistrement ET TOKEN qui enregistre en plus le role
+function traiteRegister(req, res) {
+    const { username, password } = req.body; // Récupére les données du formulaire
+    if (!username || !password) {            // Vérifie si les champs sont remplis
+        return res.send("Veuillez remplir tous les champs.");
+    } else {
+        const hashedPassword = bcrypt.hashSync(password, 10); // Hachage du mot de passe avec un salt de 10
+        const newUser = new User(username, hashedPassword);
+        const queryExist = `SELECT * FROM users WHERE username = ? `;    //vérifie si un utilisateur avec le même nom d'utilisateur existe.
+        db.get(queryExist, [username], (err, row) => {     // on vérifie uniquement le nom d utilisateur
+            //Explication de row : Dans le contexte de la méthode db.get, row représente la ligne de résultat retournée par la requête SQL. Si un utilisateur correspondant aux critères de la requête est trouvé, row contiendra les données de cet utilisateur. Sinon, row sera undefined.
+            if (err) {
+                console.error("Erreur lors de la vérification :", err.message);
+                return res.send("ERROR : Erreur interne du serveur.");
+            }
+            else if (row) {    // L'utilisateur existe déjà, 
+                console.log("Utilisateur trouvé :", row); // pour voir pb dans le code
+                if (bcrypt.compareSync(password, row.password)) {  // on vérifie le mot de passe
+                    console.log("Compte déjà existant, authentification requise");
+                    return res.send(`
+                        <p>Vous avez déjà un compte, veuillez vous authentifier.</p>
+                        <button onclick="window.location.href='/login'">Aller à la page de connexion</button>
+                    `);
+                } else {  // Le nom d'utilisateur existe mais le mot de passe est différent
+                    console.log("Nom d'utilisateur déjà pris.");
+                    // return res.send(registerEJSView("Nom d'utilisateur déjà existant, veuillez en choisir un autre.")); // ça laissera l'affichage du formulaire // PAS AVEC EJS
+                    return res.render('registerEJSView', { 
+                        navbar: res.locals.navbar || "", 
+                        errorMessage: "Erreur : nom d'utilisateur ou mot de passe incorrect.",
+                        validateMessage: ""   
+                    });          
+        
+                }
+            } else {
+            // Insère le nouvel utilisateur
+                const queryInsert = `INSERT INTO users(username, password) VALUES (?, ?)`;
+                db.run(queryInsert, [newUser.username, newUser.password], function (err) {
+                    if (err) {
+                        console.error("register échoué : Erreur lors de l'enregistrement :", err.message);
+                        return res.send( 'ERROR : Erreur lors de la création du compte.');
+                    } else {
+                        console.log("user succes :" , newUser, " Utilisateur créé avec succès :", newUser.username, "role : ", newUser.role);
+                        //return res.send("Compte créé avec succès."); // masquer si on le désire
+                        //return res.redirect('./user');  // pour rediriger l utilisateur vers la page user
+                        //return res.redirect('/user?message=Compte+créé+avec+succès.');
+                        //const token = jwt.sign({username}, secretKey, {expiresIn : '1h'}); // assignation token à l'utilisateur
+                        const token = jwt.sign(       // assignation token à l'utilisateur
+                            { username: newUser.username, role: newUser.role},  // Récup et ajoute username et rôle
+                            secretKey,
+                            { expiresIn: '1h' }
+                        ); 
+                        res.cookie('token', token, {httpOnly : true}); // enregistrement du token dans le cookie
+                        return res.send(`
+                            <p>Compte créé avec succès. Redirection en cours...</p>
+                            <script>
+                                setTimeout(function() {
+                                    window.location.href = '/user';
+                                }, 3000); // Redirige après 3 secondes
+                            </script>
+                        `);
+                    } 
+                });
+            }
+        });
+    }
+}
 
-
+/* //SANS EJS
 function adminShowRegister(req, res) {
     const navbar = res.locals.navbar || ""; // On récupère la valeur de navbar
     res.send(adminRegisterView(navbar));  // On passe navbar à la vue
+}
+ */
+// AVEC EJS
+function adminShowRegister(req, res) {
+    res.render('adminRegisterEJSView', { 
+        navbar: res.locals.navbar || "", // On récupère la valeur de navbar
+        errorMessage: "" ,
+        validateMessage: ""
+    });
 }
 
 
@@ -183,7 +374,12 @@ function adminTraiteRegister(req, res) {
                     `);
                 } else {  // Le nom d'utilisateur existe mais le mot de passe est différent
                     console.log("Nom d'utilisateur déjà pris.");
-                    return res.send(adminRegisterView("Nom d'utilisateur déjà existant, veuillez en choisir un autre.")); // ça laissera l'affichage du formulaire
+                    //return res.send(adminRegisterView("Nom d'utilisateur déjà existant, veuillez en choisir un autre.")); // ça laissera l'affichage du formulaire PAS AVEC EJS
+                    res.render('adminRegisterEJSView', { 
+                        navbar: res.locals.navbar || "", // On récupère la valeur de navbar
+                        errorMessage: "Nom d'utilisateur déjà existant, veuillez en choisir un autre." ,
+                        validateMessage: ""
+                    });                    
                 }
             } else {
             // Insère le nouvel utilisateur
@@ -219,11 +415,22 @@ function adminTraiteRegister(req, res) {
     }
 }
 
-
-function showDelete(req, res) {
+// SANS EJS
+/* function showDelete(req, res) {
     const navbar = res.locals.navbar || ""; // On récupère la valeur de navbar
     res.send(deleteView(navbar));  // On passe navbar à la vue
 }
+ */
+
+// AVEC EJS
+function showDelete(req, res) {
+    res.render('deleteEJSView', { 
+        navbar: res.locals.navbar || "", // On récupère la valeur de navbar
+        errorMessage: "" ,
+        validateMessage: ""
+    });
+}
+
 
 //  SANS REORGANISATION DES ID PAR RAPPORT AUX ELEMENTS SUPPRIMES
 /* function traiteDelete(req, res) {
@@ -250,7 +457,7 @@ function showDelete(req, res) {
 }
  */    
       
-// AVEC REORGANISATION DES ID DES ELMT SUPPRIMES POUR COMBLER LES TROUS, CA PEUT ETRE FAIT AUSSI MANUELLEMENT
+// AVEC EJS AVEC REORGANISATION DES ID DES ELMT SUPPRIMES POUR COMBLER LES TROUS, CA PEUT ETRE FAIT AUSSI MANUELLEMENT
 function traiteDelete(req, res) {
     const { id, username} = req.body;
     db.get('SELECT * FROM users WHERE id = ? AND username = ?', [id, username], (err, row) => {
@@ -285,7 +492,12 @@ function traiteDelete(req, res) {
                                 return res.send('ERROR : Erreur lors de la réinitialisation de l\'auto-incrémentation.');
                             }
                             console.log("Auto-increment réinitialisé");
-                            return res.send("Compte supprimé et ID réorganisés avec succès.");
+                            //return res.send("Compte supprimé et ID réorganisés avec succès.");// PAS EJS
+                            res.render('deleteEJSView', { 
+                                navbar: res.locals.navbar || "", // On récupère la valeur de navbar
+                                errorMessage: "" ,
+                                validateMessage: "Compte supprimé et ID réorganisés avec succès."
+                            });             
                         });
                     });
                 });
@@ -299,8 +511,8 @@ function traiteDelete(req, res) {
 }
  */
 
-// VERSION GPT
-function showEditLogin(req, res) {
+// SANS EJS VERSION GPT 
+/* function showEditLogin(req, res) {
     const navbar = res.locals.navbar || ""; // On récupère la valeur de navbar
     const queryUser = 'SELECT * FROM users WHERE username = ?';
     db.get(queryUser, [req.user.username], (err, row) => {
@@ -312,7 +524,33 @@ function showEditLogin(req, res) {
         }
     });
 }
+ */
+// AVEC EJS
+function showEditLogin(req, res) {
+    const queryUser = 'SELECT * FROM users WHERE username = ?';
+    db.get(queryUser, [req.user.username], (err, row) => {
+        if (err || !row) {
+            console.error("Erreur lors de la récupération de l'utilisateur :", err ? err.message : "Utilisateur non trouvé");
+            //return res.send(editLoginView(null, "Utilisateur non trouvé.")); // SANS EJS
+            res.render('editLoginEJSView', { 
+                user: null,
+                navbar: res.locals.navbar || "", // On récupère la valeur de navbar
+                errorMessage: "Utilisateur non trouvé" ,
+                validateMessage: ""
+            });
+        
+        } else {
+        //res.send(editLoginView(row, navbar)); // PAS EJS
+        res.render('editLoginEJSView', { 
+            user: row,
+            navbar: res.locals.navbar || "", // On récupère la valeur de navbar
+            errorMessage: "" ,
+            validateMessage: ""
+        });
 
+        }
+    });
+}
 
   
 /*   // VERSION AVEC LE HACHAGE DES MDP et la REDIRECTION VERS LA PAGE EDITLOGIN ET TOKEN
@@ -381,7 +619,7 @@ function showEditLogin(req, res) {
     
  */
 
-// VERSION GPT
+/* // SANS EJS VERSION GPT
 function traiteEditLogin(req, res) {
     const { currentPassword, newPassword, confirmPassword } = req.body;
 
@@ -423,6 +661,76 @@ function traiteEditLogin(req, res) {
         });
     });
 }
+ */
+
+//AVEC EJS
+function traiteEditLogin(req, res) {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    const queryUser = 'SELECT * FROM users WHERE username = ?';
+    db.get(queryUser, [req.user.username], (err, row) => {
+        if (err || !row) {
+            console.error("Erreur lors de la récupération de l'utilisateur :", err ? err.message : "Utilisateur non trouvé");
+            //return res.send(editLoginView(null, "Utilisateur non trouvé.")); // PAS EJS
+            res.render('editLoginEJSView', { 
+                user: null,
+                navbar: res.locals.navbar || "", // On récupère la valeur de navbar
+                errorMessage: "Utilisateur non trouvé." ,
+                validateMessage: ""
+            });
+        }
+
+        // Vérifiez le mot de passe actuel
+        if (!bcrypt.compareSync(currentPassword, row.password)) {
+            //return res.send(editLoginView(row, "Mot de passe actuel incorrect.")); // PAS EJS
+            res.render('editLoginEJSView', { 
+                user: row,
+                navbar: res.locals.navbar || "", // On récupère la valeur de navbar
+                errorMessage: "Mot de passe actuel incorrect." ,
+                validateMessage: ""
+            });
+        }
+
+        // Vérifiez que les nouveaux mots de passe correspondent
+        if (newPassword !== confirmPassword) {
+            //return res.send(editLoginView(row, "Les nouveaux mots de passe ne correspondent pas.")); // PAS EJS
+            res.render('editLoginEJSView', { 
+                user: row,
+                navbar: res.locals.navbar || "", // On récupère la valeur de navbar
+                errorMessage: "Les nouveaux mots de passe ne correspondent pas.",
+                validateMessage: "" 
+            });
+         }
+
+        // Mettez à jour le mot de passe
+        const hashedPassword = bcrypt.hashSync(newPassword, 10);
+        const updatePasswordQuery = 'UPDATE users SET password = ? WHERE username = ?';
+
+        db.run(updatePasswordQuery, [hashedPassword, req.user.username], function (err) {
+            if (err) {
+                console.error("Erreur lors de la mise à jour du mot de passe :", err.message);
+                //return res.send(editLoginView(row, "Erreur lors de la mise à jour du mot de passe.")); // PAS EJS
+                res.render('editLoginEJSView', { 
+                    user: row,
+                    navbar: res.locals.navbar || "", // On récupère la valeur de navbar
+                    errorMessage: "Erreur lors de la mise à jour du mot de passe." ,
+                    validateMessage: ""
+                });
+    
+            }
+
+            res.send(`
+                <p>Mot de passe modifié avec succès. Redirection en cours...</p>
+                <script>
+                    setTimeout(function() {
+                        window.location.href = '/User';
+                    }, 3000);
+                </script>
+            `);
+        });
+    });
+}
+
 
 // Exemple de modification du rôle d'un utilisateur
 /* const updateUserRole = (userId, newRole) => {
@@ -438,23 +746,26 @@ function traiteEditLogin(req, res) {
 updateUserRole(1, 'admin');
  */
 
-function showModifRole(req, res) {
+// SANS EJS
+/* function showModifRole(req, res) {
     const navbar = res.locals.navbar || ""; // On récupère la valeur de navbar
     res.send(modifRoleView(navbar));  // On passe navbar à la vue
 }
+ */
 
-//  MODIF DU ROLE
-function traiteModifRole(req, res) {
+//AVEC EJS
+function showModifRole(req, res) {
+    res.render('modifRoleEJSView', { 
+        navbar: res.locals.navbar || "", // On récupère la valeur de navbar
+        errorMessage: "" ,
+        validateMessage: ""
+    });
+}
+
+
+//  SANS EJS MODIF DU ROLE
+/* function traiteModifRole(req, res) {
     const { id, username, role} = req.body;
-/*     db.get('SELECT * FROM users WHERE id = ? AND username = ?' AND role = ?, [id, username, role], (err, row) => {
-        if (err) {
-            console.error("Erreur lors de la vérification de l'utilisateur :", err.message);
-            return res.send('ERROR');
-        }
-        if(!row){
-            return res.send('Utilisateur non trouvé');
-        }
- */ 
     const queryModifRole = `UPDATE users SET role = ? WHERE id = ? AND username = ?`;
     db.run(queryModifRole, [role,id, username], function (err) {
         if (err) {
@@ -463,6 +774,28 @@ function traiteModifRole(req, res) {
         } else {
             console.log(" Role modifié avec succès :", "id :", id, "nom :", username, "role :", role);
             return res.send("Role modifié avec succès."); 
+        }
+    })
+}
+ */
+
+// AVEC EJS MODIF ROLE
+function traiteModifRole(req, res) {
+    const { id, username, role} = req.body;
+    const queryModifRole = `UPDATE users SET role = ? WHERE id = ? AND username = ?`;
+    db.run(queryModifRole, [role,id, username], function (err) {
+        if (err) {
+            console.error("Erreur lors de l'enregistrement :", err.message);
+            return res.send( 'ERROR : Erreur lors de la modification du role.');
+        } else {
+            console.log(" Role modifié avec succès :", "id :", id, "nom :", username, "role :", role);
+            //return res.send("Role modifié avec succès.");  // PAS EJS
+            return res.render('modifRoleEJSView', { 
+                navbar: res.locals.navbar || "", // On récupère la valeur de navbar
+                errorMessage: "" ,
+                validateMessage: "Role modifié avec succès."
+            });
+        
         }
     })
 }

@@ -1,0 +1,30 @@
+<%- include('header') %>
+
+<title>Mofication MDP</title>
+
+<%- include('balisesfermetureheadetouverturebody') %>
+<%- include('navbar') %>
+
+<h1>Bienvenue <%= user.username %> !</h1>
+
+<%- include('errorOuValidateMessage') %>
+
+
+<h3>Modifier mon mot de passe</h3>
+<form action="/EditLogin" method="POST">
+    <label for="currentPassword">Mot de passe actuel : </label>
+    <input type="password" name="currentPassword" placeholder="Mot de passe actuel" required>
+    <br>
+    <label for="newPassword">Nouveau mot de passe : </label>
+    <input type="password" name="newPassword" placeholder="Nouveau mot de passe" required>
+    <br>
+    <label for="confirmPassword">Confirmer le mot de passe : </label>
+    <input type="password" name="confirmPassword" placeholder="Confirmez le mot de passe" required>
+    <br><br>
+    <input type="submit" value="Modifier le mot de passe">
+</form>
+<br>
+<button onclick="window.location.href='/User'">Annuler</button>
+
+
+<%- include('footer') %>

@@ -1,0 +1,22 @@
+<%- include('header') %>
+
+<title>Mon Compte</title>
+
+
+<%- include('balisesfermetureheadetouverturebody') %>
+<%- include('navbar') %>
+
+<h1>Mon Compte</h1>
+<h3>Bienvenue <%= user.username   %> !</h3>
+
+<button onclick="window.location.href='/EditLogin'">Modifier mon compte</button>
+
+
+
+
+<%- include('errorOuValidateMessage') %>
+
+
+
+
+<%- include('footer') %>

@@ -1,0 +1,20 @@
+<!-- views/loginEJSView.ejs -->
+<%- include('header') %>
+
+<title>Déconnexion</title>
+
+<%- include('balisesfermetureheadetouverturebody') %>
+<%- include('navbar') %>
+
+<h1>Déconnexion</h1>
+
+<%- include('errorOuValidateMessage') %>
+
+
+<form action="/logout" method="get">
+    <button type="submit">Logout</button>
+</form>
+
+
+<%- include('footer') %>
+
