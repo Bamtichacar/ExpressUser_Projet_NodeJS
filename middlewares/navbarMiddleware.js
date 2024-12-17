@@ -2,7 +2,7 @@
 function navbarMiddleware() {
     return function (req, res, next) {
     const token = req.cookies.token; // Vérifie si un utilisateur est connecté
-
+    // ne pas mettre ici le const user role mais en bas sous token et surtout ne pas ecrire mm en bas req cookie role sinon marche pas
     // Crée la navbar dynamique
     res.locals.navbar = `
         <nav style="background-color: #333; padding: 10px; color: white;">
