@@ -1,15 +1,23 @@
-function homeView(user,navbar="") {
+/* function homeView(user,navbar="") {
     if(user) {
         return `
         ${navbar}
-        Bienvenue ${user.username} ! <br><br>
+        ACUEIL Bienvenue ${user.username} ! <br><br>
         `;
     } else {
         return `
         ${navbar}
-        Bienvenue ! <br><br>
+        ACCUEIL Bienvenue ! <br><br>
         `;
     }
+}
+ */
+
+function homeView(navbar="") {
+    return `
+    ${navbar}
+    ACCUEIL Bienvenue ! <br><br>
+    `;
 }
 
 

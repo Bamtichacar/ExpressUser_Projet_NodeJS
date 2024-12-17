@@ -22,8 +22,8 @@ function navbarMiddleware() {
             `;
         } else if (userRole === 'PROPRIETAIRE') {
             res.locals.navbar += `
-            <a href="/AdminRegister" style="color: white; magin-right: 10px;">Créer un compte admin</a>
-            <a href="/ModifRole" style="color: white; magin-right: 10px;">Modifier un role</a>
+            <a href="/AdminRegister" style="color: white; margin-right: 10px;">Créer un compte admin</a>
+            <a href="/ModifRole" style="color: white; margin-right: 10px;">Modifier un role</a>
             `;
         }
     } else {

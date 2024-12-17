@@ -20,20 +20,23 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 //app.use(express.urlencoded({ extended: true }));
 
+app.use(navbarMiddleware());
+
+
 app.use((req, res, next) => { // Ajout d'un middleware pour vérif que les cookies st bien reçus par le serveur.
     console.log('Cookies:', req.cookies);
     next();
 });
 
-app.use(navbarMiddleware());
+//app.use(navbarMiddleware());
 
 
 /* app.get('/home', verifyTokenAndRoleMiddleware(), (req, res) => {
     getHome(req, res); // La fonction accède à req.user si le token est valide
 });
  */
-app.get('/home', verifyTokenAndRoleMiddleware(), (req, res) => {
-    getHome(req, res); // La fonction accède à req.user si le token est valide
+app.get('/home', (req, res) => {
+    getHome(req, res); 
 });
 
 

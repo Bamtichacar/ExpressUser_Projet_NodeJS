@@ -16,14 +16,12 @@ const modifRoleView = require('../views/modifRoleView');
 const logoutView = require('../views/logoutView');
 const homeView = require('../views/homeView');
 
-
 function getHome(req,res) {
     const navbar = res.locals.navbar || ""; // On récupère la valeur de navbar
-      res.send(homeView(row,navbar));
+    res.send(homeView(navbar));
 
 };
-
-
+ 
 
 
 
