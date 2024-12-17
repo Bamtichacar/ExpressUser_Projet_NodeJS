@@ -2,8 +2,6 @@
 function navbarMiddleware() {
     return function (req, res, next) {
     const token = req.cookies.token; // Vérifie si un utilisateur est connecté
-    const userRole = req.cookies.role || 'guest'; // Récupère le rôle depuis les cookies ou "guest" par défaut
-    console.log("role dans navbar :", userRole, "token :", token);
 
     // Crée la navbar dynamique
     res.locals.navbar = `
@@ -12,10 +10,12 @@ function navbarMiddleware() {
     `;
 
     if (token) {
+        const userRole = req.user.role || 'guest'; // Récupère le rôle depuis les cookies ou "guest" par défaut
+        console.log("role dans navbar :", userRole, "token :", token);
+    
         res.locals.navbar += `
             <a href="/user" style="color: white; margin-right: 10px;">Mon compte</a>
             <a href="/EditLogin" style="color: white; margin-right: 10px;">Modifier mon mot de passe</a>
-            <a href="/logout" style="color: white;">Déconnexion</a>
         `;
         if (userRole === 'admin') {
             res.locals.navbar += `
@@ -23,10 +23,15 @@ function navbarMiddleware() {
             `;
         } else if (userRole === 'PROPRIETAIRE') {
             res.locals.navbar += `
+            <a href="/Delete" style="color: white; margin-right: 10px;">Supprimer un utilisateur</a>
             <a href="/AdminRegister" style="color: white; margin-right: 10px;">Créer un compte admin</a>
             <a href="/ModifRole" style="color: white; margin-right: 10px;">Modifier un role</a>
             `;
         }
+        res.locals.navbar += `
+        <a href="/logout" style="color: white;">Déconnexion</a>
+        `;
+
     } else {
         res.locals.navbar += `
             <a href="/login" style="color: white; margin-right: 10px;">Connexion</a>
