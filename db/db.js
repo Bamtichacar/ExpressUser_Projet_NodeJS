@@ -23,9 +23,26 @@ const db = new sqlite3.Database('./database.sqlite', (err)=>{
             username TEXT NOT NULL,
             password TEXT NOT NULL,
             role TEXT NOT NULL DEFAULT 'user')`);     // 'user' est le rôle par défaut
-            console.log("connecté à la bdd");
+            console.log("connecté à la bdd users");
+
+        db.run(`CREATE TABLE IF NOT EXISTS annonces(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            titre TEXT NOT NULL,
+            description TEXT NOT NULL,
+            prix REAL NOT NULL,
+            image BLOB,
+            validée BOOLEAN NOT NULL DEFAULT 0,
+            date_de_soumission DATETIME DEFAULT CURRENT_TIMESTAMP,
+            user_id INTEGER NOT NULL,
+            user_name TEXT NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES users(id),
+            FOREIGN KEY (user_name) REFERENCES users(username)
+        )`);
+            console.log("connecté à la bdd annonces");
+    
     }
 })
+
 
 // pour supp table
 /* const sqlite3 = require('sqlite3').verbose();
@@ -38,6 +55,12 @@ const db = new sqlite3.Database('./database.sqlite', (err)=>{
     }
 })
  */
+
+
+
+
+
+
 
 
 
