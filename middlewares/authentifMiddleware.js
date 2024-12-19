@@ -88,11 +88,24 @@ function verifyTokenMiddleware(roleRequired) {
 function verifyTokenAndRoleMiddleware(allowedRoles) {
     return function (req, res, next) {
         const token = req.cookies.token; // Récupère le token dans les cookies
-        if (!token) {
-            req.user = null; // L'utilisateur n'est pas authentifié
-            return next();
-            //return res.redirect('/home'); // Redirige si aucun token n'est trouvé
+        const publicRoutes = ['/home', '/login', '/register']; // Liste des routes publiques
+/*         if (publicRoutes.includes(req.path)) {
+            req.user = null; // Définit req.user à null pour les routes publiques
+            return next(); // Ignore la vérification pour les routes publiques - // Passe à la route suivante
         }
+ */        if (!token) {   // Pas de token pour une route protégée
+                if (publicRoutes.includes(req.path)) {
+                    req.user = null; // Définit req.user à null pour les routes publiques
+                    return next(); // Ignore la vérification pour les routes publiques - // Passe à la route suivante
+                } else {
+                    //req.user = null; // L'utilisateur n'est pas authentifié
+                    return res.status(403).send("Accès refusé : Vous devez être connecté pour accéder à cette page.");
+                    //return res.redirect('/login'); // Redirige vers la page de connexion
+                    //res.status(403).send("Accès refusé : Vous n'avez pas les droits nécessaires.");
+                    //return next();
+                    //return res.redirect('/home'); // Redirige si aucun token n'est trouvé
+                }
+            }
 
         jwt.verify(token, secretKey, (err, decoded) => {
             if (err) {

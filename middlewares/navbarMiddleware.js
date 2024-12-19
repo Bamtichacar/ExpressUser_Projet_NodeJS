@@ -14,6 +14,7 @@ function navbarMiddleware() {
         console.log("role dans navbar :", userRole, "token :", token);
     
         res.locals.navbar += `
+            <a href="/DepotAnnonce" style="color: white; margin-right: 10px;">Déposer une annonce</a>
             <a href="/user" style="color: white; margin-right: 10px;">Mon compte</a>
             <a href="/EditLogin" style="color: white; margin-right: 10px;">Modifier mon mot de passe</a>
         `;

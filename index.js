@@ -1,5 +1,5 @@
 const express = require('express');
-const {getUser,showLogin, traiteLogin, showRegister, traiteRegister, showDelete, traiteDelete, showEditLogin, traiteEditLogin,adminShowRegister, adminTraiteRegister, showModifRole, traiteModifRole, getHome} = require('./controllers/userController');
+const {getUser,showLogin, traiteLogin, showRegister, traiteRegister, showDelete, traiteDelete, showEditLogin, traiteEditLogin,adminShowRegister, adminTraiteRegister, showModifRole, traiteModifRole, getHome, showDepotAnnonce, traiteDepotAnnonce} = require('./controllers/userController');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 //const  {verifyTokenMiddleware, checkRoleMiddleware} = require('./middlewares/authentifMiddleware'); 
@@ -44,7 +44,7 @@ app.set('views', './views'); // Indique où se trouvent les fichiers de vue
     getHome(req, res); 
 });
  */
-app.get('/home', verifyTokenAndRoleMiddleware(), (req,res) => {
+app.get('/home', (req,res) => {
     getHome(req, res);
 });
 
@@ -175,3 +175,11 @@ app.get('/logout', verifyTokenAndRoleMiddleware(),(req, res) => {
     res.redirect('/login'); // Redirige vers la page de connexion
 });
 
+//  AVEC MIDDLEWARE TOUT EN 1 - MODIF DES ROLES
+app.get('/DepotAnnonce', verifyTokenAndRoleMiddleware(), (req, res) => {
+    showDepotAnnonce(req, res); // on aura accès à req.user.username
+});
+
+app.post('/DepotAnnonce', verifyTokenAndRoleMiddleware(), (req, res) => {
+    traiteDepotAnnonce(req, res); // // Modification sécurisée pour l'utilisateur connecté
+});

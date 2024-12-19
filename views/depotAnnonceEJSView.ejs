@@ -1,0 +1,45 @@
+<%- include('header') %>
+
+<title>Dépot Annonce</title>
+
+
+<%- include('balisesfermetureheadetouverturebody') %>
+<%- include('navbar') %>
+
+<h1>Déposer votre annonce</h1>
+<h3>Bienvenue <%= user.username   %> !</h3>
+
+<!-- <%- include('errorOuValidateMessage') %> -->  <!-- Mis plutôt en bas car + cohérent -->
+
+<form action = "/DepotAnnonce" method = "POST">
+    <input type ="text" name = "titre" placeholder = "Titre de l'annonce" requiered>
+    <input type ="textarea" name = "description" placeholder = "Description" required>
+    <input type ="number" name = "prix" placeholder = "Prix" required>
+    <input type ="image" name = "image" placeholder = "Joindre une image">
+
+
+    <button type="submit">Valider l'annonce</button>
+    </form>
+        <br>
+    <br>
+    <p>Annuler</p>
+    <button onclick="window.location.href='/Home'">Annuler</button>
+
+
+
+<%- include('errorOuValidateMessage') %>  <!-- Mis ici car plus logique qu'en haut -->
+
+<!-- Script pour redirection -->
+<% if (redirect) { %>    <!-- Cf le redirect qui est dans res.render du controller -->
+    <script>
+        setTimeout(function() {
+            window.location.href = '/user'; // Redirige vers la page utilisateur après 3 secondes
+        }, 3000);
+    </script>
+<% } %>
+
+<!-- Script pour redirection mis ici mais on aurait pu faire include le fichier ejs qui est mnt créé-->
+
+
+
+<%- include('footer') %>

@@ -1,0 +1,8 @@
+<!-- Script pour redirection -->
+<% if (redirect) { %>
+    <script>
+        setTimeout(function() {
+            window.location.href = '/user'; // Redirige vers la page utilisateur après 3 secondes
+        }, 3000);
+    </script>
+<% } %>

@@ -1,20 +1,21 @@
 const User = require('../models/User');
-const userView = require('../views/userView');
+//const userView = require('../views/userView');
 //const loginView = require('../views/loginView');  // pas via ejs
-const registerView = require('../views/registerView');
+//const registerView = require('../views/registerView');
 const db = require('../db/db'); // on importe la bdd
 const bcrypt = require('bcrypt');
-const deleteView = require('../views/deleteView');
+//const deleteView = require('../views/deleteView');
 const dotenv =require('dotenv').config();
 const secretKey = process.env.SECRET_KEY;
 const jwt = require('jsonwebtoken');
 console.log('clé secrète utilisée : ', secretKey);
-const editLoginView = require('../views/editLoginView');
+//const editLoginView = require('../views/editLoginView');
 //const { verifyTokenMiddleware } = require('./middlewares/verifyTokenMiddleware');    faut pas ecrire ainsi
-const adminRegisterView = require('../views/adminRegisterView');
-const modifRoleView = require('../views/modifRoleView');
-const logoutView = require('../views/logoutView');
-const homeView = require('../views/homeView');
+//const adminRegisterView = require('../views/adminRegisterView');
+//const modifRoleView = require('../views/modifRoleView');
+//const logoutView = require('../views/logoutView');
+//const homeView = require('../views/homeView');
+const Annonce = require('../models/Annonce');
 
 
 /* res.render('modifRoleEJSView', { 
@@ -83,7 +84,7 @@ function getHome(req, res) {
 
 // AVEC EJS AVEC BDD ET TOKEN ET RATTACHEMENT A USERVIEW et avec MIDDLEWARE
 function getUser(req, res) {
-    const navbar = res.locals.navbar || ""; // On récupère la valeur de navbar
+    //const navbar = res.locals.navbar || ""; // On récupère la valeur de navbar
     const queryUser = 'SELECT * FROM users WHERE username = ?';
     db.get(queryUser, [req.user.username], (err, row) => {
         if (err) {
@@ -802,11 +803,113 @@ function traiteModifRole(req, res) {
 
    
       
+function showDepotAnnonce(req, res) {
+    res.render('depotAnnonceEJSView', { 
+        navbar: res.locals.navbar || "", // On récupère la valeur de navbar
+        errorMessage: "" ,
+        validateMessage: ""
+    });
+}
+
+
+
+
+function traiteDepotAnnonce(req, res) {
+    const { titre, description, prix, image } = req.body;  // Récupére les données du formulaire
+    //const user_id = req.user.id; // Récupérer l'ID utilisateur depuis le middleware
+    //const user_name = req.user.username; // Nom d'utilisateur depuis le middleware
+    //const validatiion = false; // Par défaut, non validé
+    //const date_de_soumission = new Date(); // Date actuelle
+// Rechercher l'utilisateur dans la base de données en utilisant le nom d'utilisateur
+    const queryUser = 'SELECT * FROM users WHERE username = ?';
+    db.get(queryUser, [req.user.username], (err, row) => {
+        console.log(req.user.username);
+        if (err) {
+            console.error("Erreur lors de la vérification de l'utilisateur :", err.message);
+            return res.send('ERROR');
+        } else if (row) {
+            const user_id = row.id;
+            const user_name = row.username;
+            const validatiion = false; // Par défaut, non validé
+            const date_de_soumission = new Date(); // Date actuelle
+            // Vérifie si les champs obligatoires sont remplis
+            if (!titre || !description || !prix) {
+                return res.render('depotAnnonceEJSView', { 
+                    user:row,
+                    navbar: res.locals.navbar || "",
+                    errorMessage: "Veuillez remplir tous les champs.",
+                    validateMessage: ""
+                });
+            } else {
+                // Insère une nouvelle annonce - Créer une instance d'annonce
+                const newAnnonce = new Annonce(
+                    titre,
+                    description,
+                    prix,
+                    image || null, // Si aucune image n'est fournie, utiliser null
+                    validatiion,
+                    date_de_soumission,
+                    user_id,
+                    user_name
+                );
+                // Requête d'insertion dans la base de données
+                const queryInsert = `
+                    INSERT INTO annonces (titre, description, prix, image, validation, date_de_soumission, user_id, user_name) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+                db.run(
+                    queryInsert,
+                    [
+                        newAnnonce.titre,
+                        newAnnonce.description,
+                        newAnnonce.prix,
+                        newAnnonce.image,
+                        newAnnonce.validatiion,
+                        newAnnonce.date_de_soumission.toISOString(), // Formater en ISO
+                        newAnnonce.user_id,
+                        newAnnonce.user_name,
+                    ],
+                    function (err) {
+                        if (err) {
+                            console.error("Erreur lors de l'enregistrement de l'annonce :", err.message);
+                            return res.render('depotAnnonceEJSView', { 
+                                user: row,
+                                navbar: res.locals.navbar || "",
+                                errorMessage: "Erreur lors de la création de l'annonce.",
+                                validateMessage: ""
+                            });
+                        } else {
+                            console.log(
+                                "annonces succes : " , newAnnonce,
+                                "Annonce créée avec succès : ", newAnnonce.titre,
+                                "desciption : ", newAnnonce.description,
+                                "prix : ", newAnnonce.prix,
+                                "image : ", newAnnonce.image,
+                                "validatiion : ", newAnnonce.validatiion, 
+                                "date_de_soumission : ", newAnnonce.date_de_soumission, 
+                                "user_id : ", newAnnonce.user_id,
+                                "user_name : ", newAnnonce.user_name
+                            );
+
+                            return res.render('depotAnnonceEJSView', { 
+                                user: row,
+                                navbar: res.locals.navbar || "",
+                                errorMessage: "",
+                                validateMessage: "Annonce créée avec succès, en attente de validation. Redirection en cours...",
+                                redirect: true // Indique qu'on veut rediriger, on parmetre dans la vue la redirection et le settimeout si on en désire un
+                            });
+                        }
+                    }
+                );
+            }
+        } else {
+            return res.send('Utilisateur non trouvé.');
+        }
+    });
+}
 
 
 
 
 
 
-
-module.exports = {getUser, showLogin, traiteLogin, showRegister, traiteRegister, showDelete, traiteDelete, showEditLogin, traiteEditLogin,adminShowRegister, adminTraiteRegister, showModifRole, traiteModifRole, getHome}
+module.exports = {getUser, showLogin, traiteLogin, showRegister, traiteRegister, showDelete, traiteDelete, showEditLogin, traiteEditLogin,adminShowRegister, adminTraiteRegister, showModifRole, traiteModifRole, getHome, showDepotAnnonce, traiteDepotAnnonce}
