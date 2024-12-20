@@ -20,8 +20,8 @@ const db = new sqlite3.Database('./database.sqlite', (err)=>{
             image BLOB,
             validation BOOLEAN NOT NULL DEFAULT false,
             date_de_soumission DATETIME DEFAULT CURRENT_TIMESTAMP,
-            user_name TEXT NOT NULL,
-            FOREIGN KEY (user_name) REFERENCES users(username)
+            user_id INTEGER NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES users(id)
         )`);
             console.log("connecté à la bdd annonces");
     }
