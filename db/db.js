@@ -33,15 +33,28 @@ const db = new sqlite3.Database('./database.sqlite', (err)=>{
             image BLOB,
             validation BOOLEAN NOT NULL DEFAULT false,
             date_de_soumission DATETIME DEFAULT CURRENT_TIMESTAMP,
-            user_id INTEGER NOT NULL,
             user_name TEXT NOT NULL,
-            FOREIGN KEY (user_id) REFERENCES users(id),
             FOREIGN KEY (user_name) REFERENCES users(username)
         )`);
             console.log("connecté à la bdd annonces");
     }
 });
 
+/* db.run(`CREATE TABLE IF NOT EXISTS annonces(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    titre TEXT NOT NULL,
+    description TEXT NOT NULL,
+    prix REAL NOT NULL,
+    image BLOB,
+    validation BOOLEAN NOT NULL DEFAULT false,
+    date_de_soumission DATETIME DEFAULT CURRENT_TIMESTAMP,
+    user_id INTEGER NOT NULL,
+    user_name TEXT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (user_name) REFERENCES users(username)
+)`);
+    console.log("connecté à la bdd annonces");
+ */
 // pour supp table annonces
 
 /* const sqlite3 = require('sqlite3').verbose();

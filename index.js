@@ -135,7 +135,7 @@ app.get('/EditLogin', verifyTokenAndRoleMiddleware(), (req, res) => {
     showEditLogin(req, res); // Vous aurez accès à req.user.username
 });
 
-app.post('/EditLogin', verifyTokenAndRoleMiddleware (), (req, res) => {
+app.post('/EditLogin/:id', verifyTokenAndRoleMiddleware (), (req, res) => {  // rattache l ide à la route, plus besoin de db get
     traiteEditLogin(req, res); // Modification sécurisée pour l'utilisateur connecté
 });
 

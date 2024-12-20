@@ -164,7 +164,7 @@ function traiteLogin(req, res) {
         if (row && bcrypt.compareSync(password, row.password)) {
             //const token = jwt.sign({username}, secretKey, {expiresIn : '1h'}); // assignation token à l'utilisateur
             const token = jwt.sign(       // assignation token à l'utilisateur
-                { username: row.username, role: row.role },  // Récup et ajoute username et rôle
+                { id: row.id, username: row.username, role: row.role },  // Récup et ajoute username et rôle
                 secretKey,
                 { expiresIn: '1h' }
             ); 
@@ -311,7 +311,7 @@ function traiteRegister(req, res) {
                         //return res.redirect('/user?message=Compte+créé+avec+succès.');
                         //const token = jwt.sign({username}, secretKey, {expiresIn : '1h'}); // assignation token à l'utilisateur
                         const token = jwt.sign(       // assignation token à l'utilisateur
-                            { username: newUser.username, role: newUser.role},  // Récup et ajoute username et rôle
+                            { id: newUser.id, username: newUser.username, role: newUser.role},  // Récup et ajoute username et rôle
                             secretKey,
                             { expiresIn: '1h' }
                         ); 
@@ -526,8 +526,8 @@ function traiteDelete(req, res) {
     });
 }
  */
-// AVEC EJS
-function showEditLogin(req, res) {
+// AVEC EJS FONCTIONNE AVEC LA PREMIERE FCT
+/* function showEditLogin(req, res) {
     const queryUser = 'SELECT * FROM users WHERE username = ?';
     db.get(queryUser, [req.user.username], (err, row) => {
         if (err || !row) {
@@ -541,6 +541,36 @@ function showEditLogin(req, res) {
             });
         
         } else {
+        //res.send(editLoginView(row, navbar)); // PAS EJS
+        res.render('editLoginEJSView', { 
+            user: row,
+            navbar: res.locals.navbar || "", // On récupère la valeur de navbar
+            errorMessage: "" ,
+            validateMessage: ""
+        });
+
+        }
+    });
+}
+ */
+// AVEC EJS POUR TEST
+function showEditLogin(req, res) {
+    console.log("req.bodt de show avant select : ",req.body);
+    const queryUser = 'SELECT * FROM users WHERE username = ?';
+    db.get(queryUser, [req.user.username], (err, row) => {
+        console.log('req.body de show apres le get : ',req.body);
+        if (err || !row) {
+            console.error("Erreur lors de la récupération de l'utilisateur :", err ? err.message : "Utilisateur non trouvé");
+            //return res.send(editLoginView(null, "Utilisateur non trouvé.")); // SANS EJS
+            res.render('editLoginEJSView', { 
+                user: null,
+                navbar: res.locals.navbar || "", // On récupère la valeur de navbar
+                errorMessage: "Utilisateur non trouvé" ,
+                validateMessage: ""
+            });
+        
+        } else {
+            console.log('req.body de show juste avant la vue : ',req.body);
         //res.send(editLoginView(row, navbar)); // PAS EJS
         res.render('editLoginEJSView', { 
             user: row,
@@ -664,10 +694,9 @@ function traiteEditLogin(req, res) {
 }
  */
 
-//AVEC EJS
-function traiteEditLogin(req, res) {
+//AVEC EJS FONCTIONNE AVEC SHOW QUI APPELLE DB GET
+/* function traiteEditLogin(req, res) {
     const { currentPassword, newPassword, confirmPassword } = req.body;
-
     const queryUser = 'SELECT * FROM users WHERE username = ?';
     db.get(queryUser, [req.user.username], (err, row) => {
         if (err || !row) {
@@ -732,6 +761,77 @@ function traiteEditLogin(req, res) {
     });
 }
 
+ */
+
+
+//AVEC EJS POUR TESTER
+function traiteEditLogin(req, res) {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+    // REQUEST.PARAM.ID EN CONSOLELOG
+    console.log('req param id de traiteedit : ',req.params.id);
+    console.log('req body de traite edit : ',req.body);
+
+/*     const queryUser = 'SELECT * FROM users WHERE username = ?';
+    db.get(queryUser, [req.user.username], (err, row) => {
+        if (err || !row) {
+            console.error("Erreur lors de la récupération de l'utilisateur :", err ? err.message : "Utilisateur non trouvé");
+            //return res.send(editLoginView(null, "Utilisateur non trouvé.")); // PAS EJS
+            res.render('editLoginEJSView', { 
+                user: null,
+                navbar: res.locals.navbar || "", // On récupère la valeur de navbar
+                errorMessage: "Utilisateur non trouvé." ,
+                validateMessage: ""
+            });
+
+ */        // Vérifiez le mot de passe actuel
+        if (!bcrypt.compareSync(currentPassword, row.password)) {
+            //return res.send(editLoginView(row, "Mot de passe actuel incorrect.")); // PAS EJS
+            res.render('editLoginEJSView', { 
+                user: row,
+                navbar: res.locals.navbar || "", // On récupère la valeur de navbar
+                errorMessage: "Mot de passe actuel incorrect." ,
+                validateMessage: ""
+            });
+        }
+
+        // Vérifiez que les nouveaux mots de passe correspondent
+        if (newPassword !== confirmPassword) {
+            //return res.send(editLoginView(row, "Les nouveaux mots de passe ne correspondent pas.")); // PAS EJS
+            res.render('editLoginEJSView', { 
+                user: row,
+                navbar: res.locals.navbar || "", // On récupère la valeur de navbar
+                errorMessage: "Les nouveaux mots de passe ne correspondent pas.",
+                validateMessage: "" 
+            });
+         }
+
+        // Mettez à jour le mot de passe
+        const hashedPassword = bcrypt.hashSync(newPassword, 10);
+        const updatePasswordQuery = 'UPDATE users SET password = ? WHERE username = ?';
+
+        db.run(updatePasswordQuery, [hashedPassword, req.user.username], function (err) {
+            if (err) {
+                console.error("Erreur lors de la mise à jour du mot de passe :", err.message);
+                //return res.send(editLoginView(row, "Erreur lors de la mise à jour du mot de passe.")); // PAS EJS
+                res.render('editLoginEJSView', { 
+                    user: row,
+                    navbar: res.locals.navbar || "", // On récupère la valeur de navbar
+                    errorMessage: "Erreur lors de la mise à jour du mot de passe." ,
+                    validateMessage: ""
+                });
+    
+            }
+
+            res.send(`
+                <p>Mot de passe modifié avec succès. Redirection en cours...</p>
+                <script>
+                    setTimeout(function() {
+                        window.location.href = '/User';
+                    }, 3000);
+                </script>
+            `);
+        });
+}
 
 // Exemple de modification du rôle d'un utilisateur
 /* const updateUserRole = (userId, newRole) => {
@@ -820,7 +920,7 @@ function traiteDepotAnnonce(req, res) {
     //const user_name = req.user.username; // Nom d'utilisateur depuis le middleware
     //const validatiion = false; // Par défaut, non validé
     //const date_de_soumission = new Date(); // Date actuelle
-// Rechercher l'utilisateur dans la base de données en utilisant le nom d'utilisateur
+// Recherche l'utilisateur dans la base de données en utilisant le nom d'utilisateur
     const queryUser = 'SELECT * FROM users WHERE username = ?';
     db.get(queryUser, [req.user.username], (err, row) => {
         console.log(req.user.username);
@@ -828,8 +928,8 @@ function traiteDepotAnnonce(req, res) {
             console.error("Erreur lors de la vérification de l'utilisateur :", err.message);
             return res.send('ERROR');
         } else if (row) {
-            const user_id = row.id;
-            const user_name = row.username;
+            //const user_id = row.id;
+            const user_name = req.user.username;
             const validatiion = false; // Par défaut, non validé
             const date_de_soumission = new Date(); // Date actuelle
             // Vérifie si les champs obligatoires sont remplis
@@ -849,13 +949,12 @@ function traiteDepotAnnonce(req, res) {
                     image || null, // Si aucune image n'est fournie, utiliser null
                     validatiion,
                     date_de_soumission,
-                    user_id,
                     user_name
                 );
                 // Requête d'insertion dans la base de données
                 const queryInsert = `
-                    INSERT INTO annonces (titre, description, prix, image, validation, date_de_soumission, user_id, user_name) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+                    INSERT INTO annonces (titre, description, prix, image, validation, date_de_soumission, user_name) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?)`;
                 db.run(
                     queryInsert,
                     [
@@ -864,8 +963,7 @@ function traiteDepotAnnonce(req, res) {
                         newAnnonce.prix,
                         newAnnonce.image,
                         newAnnonce.validatiion,
-                        newAnnonce.date_de_soumission.toISOString(), // Formater en ISO
-                        newAnnonce.user_id,
+                        newAnnonce.date_de_soumission.toISOString(), // Formate en ISO
                         newAnnonce.user_name,
                     ],
                     function (err) {
@@ -886,7 +984,6 @@ function traiteDepotAnnonce(req, res) {
                                 "image : ", newAnnonce.image,
                                 "validatiion : ", newAnnonce.validatiion, 
                                 "date_de_soumission : ", newAnnonce.date_de_soumission, 
-                                "user_id : ", newAnnonce.user_id,
                                 "user_name : ", newAnnonce.user_name
                             );
 
