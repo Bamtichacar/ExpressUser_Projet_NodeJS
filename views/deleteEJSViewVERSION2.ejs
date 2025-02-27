@@ -1,0 +1,30 @@
+<%- include('header') %>
+
+<title>Suppression utilisateur</title>
+
+<%- include('balisesfermetureheadetouverturebody') %>
+<%- include('navbar') %>
+
+<h1>Suppression d'un utilisateur</h1>
+
+<%- include('errorOuValidateMessage') %>
+
+<h4>Liste des utilisateurs</h4>
+
+    <ul>
+        <% users.forEach(user => { %>
+            <li><strong><%= user.username %></strong> (<%= user.id %>)</li>
+        <% }); %>
+    </ul>
+
+
+
+
+<form action = "/delete" method = "POST">
+    <input type = "number" name = "id" placeholder = "ID de l'utilisateur à supprimer" required>
+    <input type ="text" name = "username" placeholder = "Votre Nom" requiered>
+    <button type="submit">SUPPRIMER</button>
+    </form>
+
+
+<%- include('footer') %>
